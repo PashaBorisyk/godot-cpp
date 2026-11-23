@@ -22,27 +22,27 @@
   "declarations": {
     "uint32_t get_max_num_vertices_per_convex_hull() const;": {
       "xml": "members/member[@getter='get_max_num_vertices_per_convex_hull']",
-      "brief": "Returns the vertex limit that V-HACD uses for each convex hull. The stored limit is between `4`\nand `1024`.\n\n**Used for** showing the current vertex limit in a collision import tool or copying the limit to\nanother preset."
+      "brief": "Returns the per-hull vertex limit, from `4` to `1024`.\nV-HACD caps the vertex count of each hull with this value.\n\n**Used for** showing the vertex budget in a collision import preset."
     },
     "void set_max_num_vertices_per_convex_hull(uint32_t p_max_num_vertices_per_convex_hull);": {
       "xml": "members/member[@setter='set_max_num_vertices_per_convex_hull']",
-      "brief": "Sets the vertex limit that V-HACD uses for each convex hull.\n\n**Used for** setting a vertex budget for each collision shape before decomposing a detailed mesh.\n\n- `p_max_num_vertices_per_convex_hull` — Maximum number of vertices per hull. The setter clamps this value to the range from `4` to `1024`."
+      "brief": "Sets the vertex limit that V-HACD uses for each convex hull.\n\n**Used for** setting a vertex budget for each collision shape before decomposing a detailed mesh.\n\n- `p_max_num_vertices_per_convex_hull` — Vertex limit per hull, clamped to `4`–`1024`."
     },
     "uint32_t get_plane_downsampling() const;": {
       "xml": "members/member[@getter='get_plane_downsampling']",
-      "brief": "Returns the sampling step that V-HACD uses for the initial search for planes that split the mesh.\nThe stored step is between `1` and `16`.\n\n**Used for** checking the configured search step when comparing decomposition presets."
+      "brief": "Returns the split plane sampling step, from `1` to `16`.\nV-HACD uses it in its initial search.\n\n**Used for** checking the configured search step when comparing decomposition presets."
     },
     "void set_plane_downsampling(uint32_t p_plane_downsampling);": {
       "xml": "members/member[@setter='set_plane_downsampling']",
-      "brief": "Sets the sampling step for planes that split the mesh. V-HACD uses this step in its initial\nsearch.\n\n**Used for** testing more candidate split planes in the initial search by lowering the step.\n\n- `p_plane_downsampling` — Step between sampled planes. The setter clamps this value to the range from `1` to `16`."
+      "brief": "Sets the sampling step for planes that split the mesh. V-HACD uses this step in its initial\nsearch.\n\n**Used for** testing more candidate split planes in the initial search by lowering the step.\n\n- `p_plane_downsampling` — Step between sampled planes. Clamped to `1`–`16`."
     },
     "uint32_t get_convex_hull_downsampling() const;": {
       "xml": "members/member[@getter='get_convex_hull_downsampling']",
-      "brief": "Returns the sampling step for the hulls that V-HACD builds to score candidate split planes during\nits initial search. The stored step is between `1` and `16`.\n\n**Used for** reading back the hull sampling step when saving a decomposition preset."
+      "brief": "Returns the hull sampling step, from `1` to `16`.\nV-HACD uses these hulls to score candidate planes in its initial search.\n\n**Used for** reading back the hull sampling step when saving a decomposition preset."
     },
     "void set_convex_hull_downsampling(uint32_t p_convex_hull_downsampling);": {
       "xml": "members/member[@setter='set_convex_hull_downsampling']",
-      "brief": "Sets the sampling step for the hulls that V-HACD builds to score candidate split planes during its\ninitial search.\n\n**Used for** using more samples for each candidate hull by lowering the step before decomposition.\n\n- `p_convex_hull_downsampling` — Hull sampling step. The setter clamps this value to the range from `1` to `16`."
+      "brief": "Sets the sampling step for the hulls that V-HACD builds to score candidate split planes during its\ninitial search.\n\n**Used for** using more samples for each candidate hull by lowering the step before decomposition.\n\n- `p_convex_hull_downsampling` — Candidate hull sampling step. Clamped to `1`–`16`."
     },
     "class MeshConvexDecompositionSettings : public RefCounted {": {
       "xml": "brief_description",
@@ -61,39 +61,39 @@
     },
     "float get_max_concavity() const;": {
       "xml": "members/member[@getter='get_max_concavity']",
-      "brief": "Returns the configured concavity threshold, from `0.001` to `1.0`. V-HACD considers splitting a\npart when its concavity exceeds both this threshold and the estimated error.\n\n**Used for** checking the current split threshold in an import preset."
+      "brief": "Returns the concavity threshold, from `0.001` to `1.0`.\nV-HACD considers splitting a part above this threshold and its estimated error.\n\n**Used for** checking the current split threshold in an import preset."
     },
     "void set_max_concavity(float p_max_concavity);": {
       "xml": "members/member[@setter='set_max_concavity']",
-      "brief": "Sets the concavity threshold V-HACD uses to decide whether to try splitting a mesh part.\n\n**Used for** letting V-HACD consider splitting less concave parts by lowering the threshold before\ndecomposition.\n\n- `p_max_concavity` — Concavity threshold. The setter clamps it to the range from `0.001` to `1.0`."
+      "brief": "Sets the concavity threshold V-HACD uses to decide whether to try splitting a mesh part.\n\n**Used for** letting V-HACD consider splitting less concave parts by lowering the threshold before\ndecomposition.\n\n- `p_max_concavity` — Concavity threshold. Clamped to `0.001`–`1.0`."
     },
     "float get_symmetry_planes_clipping_bias() const;": {
       "xml": "members/member[@getter='get_symmetry_planes_clipping_bias']",
-      "brief": "Returns the weight V-HACD gives to mesh symmetry when it scores split planes. It ranges from `0.0`\nto `1.0`.\n\n**Used for** comparing how strongly two presets favor symmetric splits."
+      "brief": "Returns the mesh symmetry weight, from `0.0` to `1.0`.\nV-HACD uses it to score split planes.\n\n**Used for** comparing how strongly two presets favor symmetric splits."
     },
     "void set_symmetry_planes_clipping_bias(float p_symmetry_planes_clipping_bias);": {
       "xml": "members/member[@setter='set_symmetry_planes_clipping_bias']",
-      "brief": "Sets the weight V-HACD gives to mesh symmetry when it scores candidate split planes.\n\n**Used for** generating hulls for a symmetric mesh when splits should follow its symmetry planes.\n\n- `p_symmetry_planes_clipping_bias` — Weight applied to the symmetry term in the split score. The setter clamps it to `0.0`–`1.0`."
+      "brief": "Sets the weight V-HACD gives to mesh symmetry when it scores candidate split planes.\n\n**Used for** generating hulls for a symmetric mesh when splits should follow its symmetry planes.\n\n- `p_symmetry_planes_clipping_bias` — Symmetry weight in the split score. Clamped to `0.0`–`1.0`."
     },
     "float get_revolution_axes_clipping_bias() const;": {
       "xml": "members/member[@getter='get_revolution_axes_clipping_bias']",
-      "brief": "Returns the weight V-HACD gives to the preferred cutting direction when it scores split planes. It\nranges from `0.0` to `1.0`.\n\n**Used for** comparing how strongly two presets favor the preferred cutting direction."
+      "brief": "Returns the preferred cut weight, from `0.0` to `1.0`.\nV-HACD uses it to score split planes.\n\n**Used for** comparing how strongly two presets favor the preferred cutting direction."
     },
     "void set_revolution_axes_clipping_bias(float p_revolution_axes_clipping_bias);": {
       "xml": "members/member[@setter='set_revolution_axes_clipping_bias']",
-      "brief": "Sets the weight V-HACD gives to the preferred cutting direction when it scores candidate split\nplanes.\n\n**Used for** tuning split selection for a mesh with a strong axis of rotation.\n\n- `p_revolution_axes_clipping_bias` — Weight applied to the preferred direction term. The setter clamps it to `0.0`–`1.0`."
+      "brief": "Sets the weight V-HACD gives to the preferred cutting direction when it scores candidate split\nplanes.\n\n**Used for** tuning split selection for a mesh with a strong axis of rotation.\n\n- `p_revolution_axes_clipping_bias` — Preferred direction weight. Clamped to `0.0`–`1.0`."
     },
     "float get_min_volume_per_convex_hull() const;": {
       "xml": "members/member[@getter='get_min_volume_per_convex_hull']",
-      "brief": "Returns the minimum-volume fraction that V-HACD uses when simplifying hulls. It ranges from\n`0.0001` to `0.01`.\n\n**Used for** preserving the simplification threshold when copying settings to a collision preset."
+      "brief": "Returns the volume fraction, from `0.0001` to `0.01`.\nV-HACD uses it to simplify hulls.\n\n**Used for** preserving the simplification threshold when copying settings to a collision preset."
     },
     "void set_min_volume_per_convex_hull(float p_min_volume_per_convex_hull);": {
       "xml": "members/member[@setter='set_min_volume_per_convex_hull']",
-      "brief": "Sets the minimum-volume fraction that V-HACD uses when simplifying hulls.\n\n**Used for** changing how much small-volume detail hull simplification keeps relative to the\noriginal mesh.\n\n- `p_min_volume_per_convex_hull` — Fraction of the initial hull volume. The setter clamps it to `0.0001`–`0.01`."
+      "brief": "Sets the minimum-volume fraction that V-HACD uses when simplifying hulls.\n\n**Used for** changing how much small-volume detail hull simplification keeps relative to the\noriginal mesh.\n\n- `p_min_volume_per_convex_hull` — Fraction of initial hull volume. Clamped to `0.0001`–`0.01`."
     },
     "bool get_normalize_mesh() const;": {
       "xml": "members/member[@getter='get_normalize_mesh']",
-      "brief": "Returns whether V-HACD aligns mesh parts to their principal axes during the split search.\n\n**Used for** displaying whether the current preset searches for cuts in each part's principal-axis\nframe."
+      "brief": "Returns whether to align mesh parts to their principal axes.\nV-HACD reads this setting during its split search.\n\n**Used for** displaying whether the current preset searches for cuts in each part's principal-axis\nframe."
     },
     "void set_normalize_mesh(bool p_normalize_mesh);": {
       "xml": "members/member[@setter='set_normalize_mesh']",
@@ -105,7 +105,7 @@
     },
     "void set_mode(MeshConvexDecompositionSettings::Mode p_mode);": {
       "xml": "members/member[@setter='set_mode']",
-      "brief": "Sets which representation V-HACD uses when it splits the input mesh.\n\n**Used for** running the same mesh through both representations to compare the resulting collision\nhulls.\n\n- `p_mode` — Representation for decomposition. Use a voxel or a tetrahedron mode from `godot::MeshConvexDecompositionSettings::Mode`."
+      "brief": "Sets which representation V-HACD uses when it splits the input mesh.\n\n**Used for** running the same mesh through both representations to compare the resulting collision\nhulls.\n\n- `p_mode` — Use voxel or tetrahedron decomposition."
     },
     "bool get_convex_hull_approximation() const;": {
       "xml": "members/member[@getter='get_convex_hull_approximation']",
@@ -117,7 +117,7 @@
     },
     "uint32_t get_max_convex_hulls() const;": {
       "xml": "members/member[@getter='get_max_convex_hulls']",
-      "brief": "Returns the hull count limit that V-HACD uses when merging output hulls. It ranges from `1` to\n`32`.\n\n**Used for** showing the configured hull budget for a mesh before running collision decomposition."
+      "brief": "Returns the hull count limit, from `1` to `32`.\nV-HACD uses it when merging output hulls.\n\n**Used for** showing the configured hull budget for a mesh before running collision decomposition."
     },
     "void set_max_convex_hulls(uint32_t p_max_convex_hulls);": {
       "xml": "members/member[@setter='set_max_convex_hulls']",
@@ -125,7 +125,7 @@
     },
     "uint32_t get_resolution() const;": {
       "xml": "members/member[@getter='get_resolution']",
-      "brief": "Returns the voxelization resolution passed to V-HACD. The stored value is between `10000` and\n`100000`.\n\n**Used for** comparing the voxelization detail selected by two collision presets."
+      "brief": "Returns the target voxel count, from `10000` to `100000`.\nV-HACD uses it when voxelizing the mesh.\n\n**Used for** comparing the voxelization detail selected by two collision presets."
     },
     "void set_resolution(uint32_t p_min_volume_per_convex_hull);": {
       "xml": "members/member[@setter='set_resolution']",
@@ -133,20 +133,20 @@
     },
     "bool get_project_hull_vertices() const;": {
       "xml": "members/member[@getter='get_project_hull_vertices']",
-      "brief": "Returns whether the settings request that V-HACD project output hull vertices onto the source\nmesh.\n\n**Used for** reading back the projection option when saving a collision preset."
+      "brief": "Returns whether to project hull vertices onto the source mesh.\nV-HACD applies the flag to output hulls.\n\n**Used for** reading back the projection option when saving a collision preset."
     },
     "void set_project_hull_vertices(bool p_project_hull_vertices);": {
       "xml": "members/member[@setter='set_project_hull_vertices']",
       "brief": "Sets the projection flag passed to V-HACD for output hull vertices.\n\n**Used for** requesting that the output hull vertices lie on the source mesh.\n\n- `p_project_hull_vertices` — Pass `true` to request projection."
     },
     "register_virtuals": {
-      "brief": "Forwards virtual method registration to `godot::RefCounted::register_virtuals()`.\n\n**Used for** continuing the registration chain after an extension class derived from\n`godot::MeshConvexDecompositionSettings` binds its methods.\n\n- `T` — Extension class being initialized.\n- `B` — Direct C++ base of `T`, passed along for override checks."
+      "brief": "Forwards virtual method registration to `godot::RefCounted::register_virtuals()`.\n\n**Used for** continuing virtual registration after a derived extension binds its methods.\n\n- `T` — Extension class being initialized.\n- `B` — Direct C++ base of `T`, passed along for override checks."
     },
     "GDEXTENSION_CLASS(MeshConvexDecompositionSettings, RefCounted)": {
       "brief": "Defines the engine class metadata, construction hooks, and instance binding callbacks.\n\n**Used for** connecting this C++ wrapper to engine instances of the settings resource.\n\n- `m_class` — Wrapper class registered under the matching engine name.\n- `m_inherits` — C++ base that supplies reference counting."
     },
     "VARIANT_ENUM_CAST(MeshConvexDecompositionSettings::Mode);": {
-      "brief": "Defines binding metadata and conversion between `godot::MeshConvexDecompositionSettings::Mode` and\nGodot's integer argument representation.\n\n**Used for** passing decomposition modes through Variant and pointer calls to bound methods.\n\n- `m_enum` — Decomposition mode enum whose values the binding encodes as `int64_t`."
+      "brief": "Binds `godot::MeshConvexDecompositionSettings::Mode` as an integer argument.\n\n**Used for** passing decomposition modes through Variant and pointer calls to bound methods.\n\n- `m_enum` — Mode enum encoded as `int64_t`."
     }
   }
 }

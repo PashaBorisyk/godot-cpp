@@ -52,12 +52,11 @@ template <typename T>
 class TypedArray : public Array {
 public:
 	/**
-	 * Shares the source array when its element type matches. Reports an error for a mismatched element
-	 * type.
+	 * Shares matching typed storage. A mismatch reports an error and leaves the destination unchanged.
 	 *
 	 * **Used for** replacing a typed node array from an already typed engine array.
 	 *
-	 * - `p_array` — Array with the same element type and class. A mismatch leaves this array unchanged.
+	 * - `p_array` — Source array with the same element type and class.
 	 *
 	 * ```cpp
 	 * void replace_selection(godot::TypedArray<godot::Node> &selection,
@@ -75,7 +74,7 @@ public:
 	 *
 	 * **Used for** recovering an array of scene nodes from a Variant-backed property.
 	 *
-	 * - `p_variant` — Variant holding an array whose elements can be assigned to this object type.
+	 * - `p_variant` — Array variant with elements assignable to this object type.
 	 *
 	 * ```cpp
 	 * godot::TypedArray<godot::Node> load_group(godot::Variant stored_nodes) {
@@ -93,7 +92,7 @@ public:
 	 *
 	 * **Used for** applying a scene-node element type to a list received as a generic array.
 	 *
-	 * - `p_array` — Source array. A matching typed array shares storage. Otherwise its elements must be assignable to the requested type.
+	 * - `p_array` — Array with elements assignable to the requested type.
 	 *
 	 * ```cpp
 	 * godot::TypedArray<godot::Node> typed_selection(const godot::Array &nodes) {
@@ -146,12 +145,10 @@ public:
 // specialization for the rest of variant types
 
 /**
- * Defines the typed-array specialization for a C++ type backed by a built-in variant type. Matching
- * typed arrays share storage on assignment. Constructors set the element type and populate the array
- * when a source is given.
+ * Creates a typed-array specialization for a built-in Variant type.
+ * Constructors type the array. Matching arrays share storage on assignment.
  *
- * **Used for** providing the specialization that keeps a C++ built-in type mapped to its engine array
- * element type.
+ * **Used for** enforcing the engine element type in C++ arrays of built-in values.
  *
  * - `m_type` — C++ element type that selects the specialization.
  * - `m_variant_type` — Godot Variant type constant used for item validation.

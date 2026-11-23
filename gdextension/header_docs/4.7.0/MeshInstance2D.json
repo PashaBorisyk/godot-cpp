@@ -25,7 +25,7 @@
     },
     "class MeshInstance2D : public Node2D {": {
       "xml": "brief_description",
-      "brief": "A `godot::Node2D` that draws a `godot::Mesh` on the 2D canvas. The node's transform places the mesh in the scene. The node can also supply a texture for drawing.\n\n**Used for** displaying custom mesh geometry in a 2D scene, such as a shape preview in an editor tool.",
+      "brief": "Draws a `godot::Mesh` on the 2D canvas with an optional texture. The node transform places the mesh.\n\n**Used for** showing custom geometry, such as an editor's shape preview.",
       "example": [
         "// Attach the outline mesh built by a shape editor to its preview canvas.",
         "void add_outline(godot::Node2D &canvas, const godot::Ref<godot::Mesh> &shape_outline) {",
@@ -45,7 +45,7 @@
     },
     "void set_mesh(const Ref<Mesh> &p_mesh);": {
       "xml": "members/member[@setter='set_mesh']",
-      "brief": "Sets the mesh this node draws. Assigning a different `godot::Ref<godot::Mesh>` queues a redraw. The node also redraws when the assigned mesh reports a change.\n\n**Used for** updating the preview geometry when a tool rebuilds the mesh.\n\n- `p_mesh` — Mesh resource to draw. An empty reference clears the geometry.",
+      "brief": "Sets the displayed mesh. A new mesh reference or a change to the assigned mesh queues a redraw.\n\n**Used for** updating the preview geometry after an editor rebuild.\n\n- `p_mesh` — Mesh to draw. An empty reference clears the geometry.",
       "example": [
         "// Call when the editor selection changes. Pass an empty outline on deselection.",
         "void update_selection(godot::MeshInstance2D &preview, const godot::Ref<godot::Mesh> &rebuilt_outline) {",
@@ -56,7 +56,7 @@
     },
     "Ref<Mesh> get_mesh() const;": {
       "xml": "members/member[@getter='get_mesh']",
-      "brief": "Returns the assigned `godot::Ref<godot::Mesh>`. The reference is empty when no mesh is assigned.\n\n**Used for** reading the assigned mesh bounds to test whether a local pointer position falls inside the preview.",
+      "brief": "Returns the assigned mesh, or an empty reference.\n\n**Used for** testing a local pointer position against the mesh bounds.",
       "example": [
         "// Hit-test the XY bounds of the preview in the node's local coordinates.",
         "bool mouse_over_preview(const godot::MeshInstance2D &preview) {",
@@ -70,7 +70,7 @@
     },
     "void set_texture(const Ref<Texture2D> &p_texture);": {
       "xml": "members/member[@setter='set_texture']",
-      "brief": "Sets the texture used by the default `godot::CanvasItemMaterial`. Canvas shaders can read it as `TEXTURE`. Assigning a different reference queues a redraw and emits `texture_changed`.\n\n**Used for** drawing a preview mesh with the texture of a source sprite.\n\n- `p_texture` — Texture resource sampled when drawing the mesh. An empty reference clears the assigned texture.",
+      "brief": "Sets the draw texture. A changed reference queues a redraw and emits `texture_changed`. Canvas shaders can read `TEXTURE`.\n\n**Used for** drawing a preview mesh with a source sprite's texture.\n\n- `p_texture` — Texture to sample. An empty reference clears the texture.",
       "example": [
         "// The preview mesh's UVs cover the selected sprite's full texture.",
         "void show_preview(godot::MeshInstance2D &preview, const godot::Sprite2D &source_sprite) {",
@@ -81,7 +81,7 @@
     },
     "Ref<Texture2D> get_texture() const;": {
       "xml": "members/member[@getter='get_texture']",
-      "brief": "Returns the assigned `godot::Ref<godot::Texture2D>`. The reference is empty when no texture is assigned.\n\n**Used for** sharing the current texture with a second mesh that uses matching UVs.",
+      "brief": "Returns the assigned texture, or an empty reference.\n\n**Used for** sharing the texture with a second mesh that uses matching UVs.",
       "example": [
         "// Give a second preview with matching mesh UVs the same texture resource.",
         "void copy_texture(const godot::MeshInstance2D &source, godot::MeshInstance2D &preview) {",
@@ -97,5 +97,6 @@
         "godot::MeshInstance2D::register_virtuals<PreviewMesh, godot::MeshInstance2D>();"
       ]
     }
-  }
+  },
+  "engine_source": "https://github.com/godotengine/godot/blob/4.7-stable/scene/2d/mesh_instance_2d.cpp#L44-L100"
 }

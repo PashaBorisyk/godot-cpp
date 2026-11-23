@@ -65,7 +65,9 @@ _ALWAYS_INLINE_ void _pre_initialize();
 
 // Base for all engine classes, to contain the pointer to the engine instance.
 /**
- * Base of the generated and custom Godot C++ object wrappers. Holds the engine object pointer and defines default extension callbacks.
+ * Base of Godot's C++ object wrappers. Stores their engine object pointer.
+ *
+ * **Used for** constraining extension templates to Godot wrapper types.
  */
 class Wrapped {
 	/**
@@ -265,7 +267,9 @@ protected:
 
 public:
 	/**
-	 * Returns the static interned name of the base wrapper.
+	 * Returns the interned name of the root C++ wrapper.
+	 *
+	 * **Used for** terminating wrapper ancestry lookups in generated class metadata.
 	 */
 	static const StringName &get_class_static() {
 		static const StringName string_name = StringName("Wrapped");
@@ -375,12 +379,12 @@ struct EngineClassRegistration {
 // Note: the trail of `***` is to keep sane diffs in PRs, because clang-format otherwise moves every `\` which makes
 // every line of the macro different
 /**
- * Declares a custom extension class's registration traits, instance binding callbacks, and forwarding hooks for notifications, dynamic properties, validation, and string conversion. The macro also declares the class initialization and virtual registration helpers.
+ * Defines class metadata, instance binding, and callbacks for extension registration.
  *
- * **Used for** defining the metadata and callbacks needed to register a custom class with `godot::ClassDB`.
+ * **Used for** registering a custom C++ class with `godot::ClassDB`.
  *
- * - `m_class` — C++ class that contains the macro.
- * - `m_inherits` — Direct C++ base whose binding hooks are used by the generated methods.
+ * - `m_class` — C++ extension class that contains the macro.
+ * - `m_inherits` — Direct C++ base that supplies inherited binding hooks.
  */
 #define GDCLASS(m_class, m_inherits) \
 private: \
@@ -723,50 +727,50 @@ private:
 #define GDEXTENSION_CLASS(m_class, m_inherits) GDEXTENSION_CLASS_ALIAS(m_class, m_class, m_inherits)
 
 /**
- * Invokes the script override of the named extension virtual on the current object through its generated call helper.
- * Returns true if the override call succeeds.
+ * Calls the named script override on this object.
+ * Returns `true` on success. A failed call leaves any output unchanged.
  *
- * **Used for** dispatching a callback to a script attached to the current extension object.
+ * **Used for** dispatching an engine event to the attached script.
  *
  * - `m_name` — Name passed to the virtual declaration macro.
- * - `...` — Arguments forwarded to the generated helper. For a virtual with a result, pass its writable output reference last.
+ * - `...` — Call arguments, then a writable output reference for a result.
  */
 #define GDVIRTUAL_CALL(m_name, ...) _gdvirtual_##m_name##_call(__VA_ARGS__)
 /**
- * Invokes the script override of the named extension virtual on the supplied object through its generated call helper.
- * Returns true if the override call succeeds.
+ * Calls the named script override on the supplied object.
+ * Returns `true` on success. A failed call leaves any output unchanged.
  *
- * **Used for** dispatching a callback to a script attached to another extension object.
+ * **Used for** dispatching a callback to a script attached to another object.
  *
  * - `m_obj` — Non-null pointer to the object with the generated call helper.
  * - `m_name` — Name passed to the virtual declaration macro.
- * - `...` — Arguments forwarded to the generated helper. For a virtual with a result, pass its writable output reference last.
+ * - `...` — Call arguments, then a writable output reference for a result.
  */
 #define GDVIRTUAL_CALL_PTR(m_obj, m_name, ...) m_obj->_gdvirtual_##m_name##_call(__VA_ARGS__)
 
 /**
- * Registers the named extension virtual and its argument names with the engine so scripts can implement it.
+ * Registers the named extension virtual and its argument names with the engine.
  *
- * **Used for** publishing a virtual callback during the extension class's method binding.
+ * **Used for** making an extension callback available as a script override.
  *
  * - `m_name` — Name passed to the virtual declaration macro.
  * - `...` — Script-facing argument names in declaration order.
  */
 #define GDVIRTUAL_BIND(m_name, ...) ::godot::ClassDB::add_virtual_method(get_class_static(), _gdvirtual_##m_name##_get_method_info(), ::godot::snarray(__VA_ARGS__));
 /**
- * Queries the current object for an override of the named extension virtual.
+ * Returns `true` if this object has the named script override.
  *
- * **Used for** choosing a C++ fallback when the current object has no script override.
+ * **Used for** choosing a C++ fallback when the script has no override.
  *
  * - `m_name` — Name passed to the virtual declaration macro.
  */
 #define GDVIRTUAL_IS_OVERRIDDEN(m_name) _gdvirtual_##m_name##_overridden()
 /**
- * Queries the supplied object for an override of the named extension virtual.
+ * Returns `true` if the supplied object has the named script override.
  *
- * **Used for** deciding whether to prepare arguments for a callback on another extension object.
+ * **Used for** skipping callback argument preparation when another object has no override.
  *
- * - `m_obj` — Non-null pointer to the object whose override is checked.
+ * - `m_obj` — Non-null pointer to the object to check.
  * - `m_name` — Name passed to the virtual declaration macro.
  */
 #define GDVIRTUAL_IS_OVERRIDDEN_PTR(m_obj, m_name) m_obj->_gdvirtual_##m_name##_overridden()

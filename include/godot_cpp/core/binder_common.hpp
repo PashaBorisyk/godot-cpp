@@ -41,9 +41,11 @@
 namespace godot {
 
 /**
- * Registers an enum for Godot method binding. Converts between the C++ enum and the engine's signed 64-bit representation.
+ * Adds enum binding metadata and converts values through `int64_t`.
  *
- * - `m_enum` — Enum type to register, qualified with its C++ scope.
+ * **Used for** binding an extension method that accepts or returns a C++ enum.
+ *
+ * - `m_enum` — C++ enum type, qualified with its enclosing scope.
  */
 #define VARIANT_ENUM_CAST(m_enum) \
 	namespace godot { \
@@ -67,9 +69,11 @@ namespace godot {
 	}
 
 /**
- * Registers a flag enum and its `godot::BitField` wrapper for method binding. Encodes the flags as a signed 64-bit integer.
+ * Adds binding metadata for `godot::BitField` and converts flags through `int64_t`.
  *
- * - `m_enum` — Enum type whose values represent flags, qualified with its C++ scope.
+ * **Used for** binding extension methods that accept or return combined flags.
+ *
+ * - `m_enum` — Flag enum type, qualified with its enclosing scope.
  */
 #define VARIANT_BITFIELD_CAST(m_enum) \
 	namespace godot { \

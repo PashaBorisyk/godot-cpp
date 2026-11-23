@@ -43,7 +43,11 @@ namespace godot {
 // Helper class for RefCounted objects, same as Godot one.
 
 /**
- * Holds a strong reference to an engine instance derived from `godot::RefCounted`. Releasing the last reference destroys the instance.
+ * Owns a strong reference to a `godot::RefCounted` instance. Releasing it can destroy the instance.
+ *
+ * **Used for** keeping resources alive while an extension stores or passes them.
+ *
+ * - `T` — Engine wrapper type derived from `godot::RefCounted`.
  */
 template <typename T>
 class Ref {
@@ -89,81 +93,121 @@ class Ref {
 
 public:
 	/**
-	 * Returns the registered engine class name for the wrapper's static type.
+	 * Returns the registered class name of `T`.
+	 *
+	 * **Used for** looking up the class in the engine when only the reference type is known.
 	 */
 	static _FORCE_INLINE_ String get_class_static() {
 		return T::get_class_static();
 	}
 
 	/**
-	 * Tests whether the held instance has the supplied address.
+	 * Tests whether the stored address equals the supplied address.
+	 *
+	 * **Used for** matching a cached resource against a pointer received from the engine.
+	 *
+	 * - `p_ptr` — Address to compare. Null matches an empty reference.
 	 */
 	_FORCE_INLINE_ bool operator==(const T *p_ptr) const {
 		return reference == p_ptr;
 	}
 	/**
-	 * Tests whether the held instance has a different address.
+	 * Tests whether the stored address differs from the supplied address.
+	 *
+	 * **Used for** detecting an engine-side resource change before updating a cache.
+	 *
+	 * - `p_ptr` — Address to compare. Null tests for a held instance.
 	 */
 	_FORCE_INLINE_ bool operator!=(const T *p_ptr) const {
 		return reference != p_ptr;
 	}
 
 	/**
-	 * Orders wrappers by the addresses of their held instances.
+	 * Compares the raw pointers with the built-in `operator<`.
+	 *
+	 * **Used for** ordering held resource addresses in process-local diagnostics.
+	 *
+	 * - `p_r` — Reference whose stored pointer is compared.
 	 */
 	_FORCE_INLINE_ bool operator<(const Ref<T> &p_r) const {
 		return reference < p_r.reference;
 	}
 	/**
-	 * Tests whether the wrappers hold the same instance pointer.
+	 * Tests whether both references hold the same pointer.
+	 *
+	 * **Used for** checking whether two resource slots share an instance.
+	 *
+	 * - `p_r` — Other reference. Two empty references compare equal.
 	 */
 	_FORCE_INLINE_ bool operator==(const Ref<T> &p_r) const {
 		return reference == p_r.reference;
 	}
 	/**
-	 * Tests whether the wrappers hold different instance pointers.
+	 * Tests whether the references hold different pointers.
+	 *
+	 * **Used for** refreshing a preview when its resource instance changes.
+	 *
+	 * - `p_r` — Other reference. An empty one holds a null pointer.
 	 */
 	_FORCE_INLINE_ bool operator!=(const Ref<T> &p_r) const {
 		return reference != p_r.reference;
 	}
 
 	/**
-	 * Returns the held raw pointer, which can be null.
+	 * Returns the held pointer, or `nullptr`.
+	 *
+	 * **Used for** passing a resource to a raw-pointer API while this reference holds it.
 	 */
 	_FORCE_INLINE_ T *operator*() const {
 		return reference;
 	}
 
 	/**
-	 * Provides member access through the held pointer. The wrapper must hold an instance before dereferencing.
+	 * Returns the held pointer, or `nullptr`.
+	 * Check validity before member access.
+	 *
+	 * **Used for** calling a method on a resource held by the reference.
 	 */
 	_FORCE_INLINE_ T *operator->() const {
 		return reference;
 	}
 
 	/**
-	 * Returns the raw pointer without acquiring another reference. It is null for an empty wrapper.
+	 * Returns the held pointer, or `nullptr`.
+	 * The caller gains no reference.
+	 *
+	 * **Used for** passing a borrowed resource pointer to a native function.
 	 */
 	_FORCE_INLINE_ T *ptr() const {
 		return reference;
 	}
 
 	/**
-	 * Creates a `godot::Variant` containing the held object.
+	 * Creates a `godot::Variant` from the held object pointer.
+	 *
+	 * **Used for** passing a reference-counted resource to a Variant-based call.
 	 */
 	operator Variant() const {
 		return Variant(reference);
 	}
 
 	/**
-	 * Acquires the source reference and releases the previous reference.
+	 * Shares the source instance and releases the old one. Equal pointers leave both references unchanged.
+	 *
+	 * **Used for** sharing a resource between two long-lived owners.
+	 *
+	 * - `p_from` — Source reference. An empty source clears the destination.
 	 */
 	void operator=(const Ref &p_from) {
 		ref(p_from);
 	}
 
 	/**
-	 * Transfers the source reference and clears the source when the held pointers differ. Equal pointers leave both wrappers as they are.
+	 * Releases the old reference, takes the source reference, and clears the source. Equal pointers leave both unchanged.
+	 *
+	 * **Used for** handing ownership of a resource to another wrapper.
+	 *
+	 * - `p_from` — Source reference. It is cleared only if the pointers differ.
 	 */
 	void operator=(Ref &&p_from) {
 		if (reference == p_from.reference) {
@@ -175,7 +219,12 @@ public:
 	}
 
 	/**
-	 * Casts the source instance to the requested class and acquires the result. A failed cast clears this wrapper.
+	 * Casts the source to `T` and acquires it in place of the old instance. An unsuccessful cast or acquisition clears this reference.
+	 *
+	 * **Used for** updating a typed resource slot from a reference to a related class.
+	 *
+	 * - `T_Other` — Class held by the source reference.
+	 * - `p_from` — Source reference. An empty source clears the destination.
 	 */
 	template <typename T_Other>
 	void operator=(const Ref<T_Other> &p_from) {
@@ -183,14 +232,22 @@ public:
 	}
 
 	/**
-	 * Acquires a reference through `godot::RefCounted::init_ref` for a raw pointer and releases the previous reference.
+	 * Replaces the old reference using `godot::RefCounted::init_ref()`. Equal pointers leave it unchanged. A failed acquisition clears it.
+	 *
+	 * **Used for** owning a raw resource returned by a native factory.
+	 *
+	 * - `p_from` — Live instance to acquire. Null clears the reference.
 	 */
 	void operator=(T *p_from) {
 		ref_pointer<true>(p_from);
 	}
 
 	/**
-	 * Obtains the live object from a variant and tries to hold it as the wrapper's class. An invalid or incompatible object clears this wrapper.
+	 * Replaces the old reference with the live object in the variant, cast to `T`. An invalid object, cast, or acquisition clears it.
+	 *
+	 * **Used for** updating a typed resource slot from a Variant-backed property.
+	 *
+	 * - `p_variant` — Variant whose live object is cast and acquired.
 	 */
 	void operator=(const Variant &p_variant) {
 		Object *object = p_variant.get_validated_object();
@@ -203,7 +260,12 @@ public:
 	}
 
 	/**
-	 * Casts a raw engine wrapper to the requested class and acquires a reference through `godot::RefCounted::init_ref`.
+	 * Replaces the reference with a raw object cast to `T` and acquired through `godot::RefCounted::init_ref()`. A failed cast or acquisition clears it.
+	 *
+	 * **Used for** holding a resource after a runtime class check.
+	 *
+	 * - `T_Other` — Static type of the source pointer.
+	 * - `p_ptr` — Live engine object to cast and acquire, or null to clear.
 	 */
 	template <typename T_Other>
 	void reference_ptr(T_Other *p_ptr) {
@@ -215,14 +277,22 @@ public:
 	}
 
 	/**
-	 * Acquires a separate reference to the instance held by the source wrapper.
+	 * Acquires a separate reference to the source instance.
+	 *
+	 * **Used for** keeping a resource alive in a second owner.
+	 *
+	 * - `p_from` — Reference to copy. The source keeps its ownership.
 	 */
 	Ref(const Ref &p_from) {
 		this->operator=(p_from);
 	}
 
 	/**
-	 * Takes the source reference and leaves the source empty.
+	 * Takes the held reference and clears the source.
+	 *
+	 * **Used for** moving a resource into storage without changing its reference count.
+	 *
+	 * - `p_from` — Reference to take. It is empty after construction.
 	 */
 	Ref(Ref &&p_from) {
 		reference = p_from.reference;
@@ -230,7 +300,12 @@ public:
 	}
 
 	/**
-	 * Acquires a reference to the source instance if it can be cast to the requested class.
+	 * Holds the source after a successful cast and acquisition. It is empty on failure.
+	 *
+	 * **Used for** getting a typed reference from a resource loaded through a base class.
+	 *
+	 * - `T_Other` — Class held by the source reference.
+	 * - `p_from` — Potentially empty source reference. Its ownership is retained.
 	 */
 	template <typename T_Other>
 	Ref(const Ref<T_Other> &p_from) {
@@ -238,30 +313,44 @@ public:
 	}
 
 	/**
-	 * Acquires a reference to a raw instance through `godot::RefCounted::init_ref`.
+	 * Acquires the raw instance through `godot::RefCounted::init_ref()`. It is empty if acquisition fails.
+	 *
+	 * **Used for** keeping a newly created raw resource alive.
+	 *
+	 * - `p_from` — Live instance to acquire, or null for an empty reference.
 	 */
 	Ref(T *p_from) {
 		this->operator=(p_from);
 	}
 
 	/**
-	 * Takes a strong reference to the variant's object if it is live and has a compatible class.
+	 * Acquires the live object in the variant as `T`. It is empty if validation, casting, or acquisition fails.
+	 *
+	 * **Used for** reading a typed resource from a value returned by script.
+	 *
+	 * - `p_from` — Variant whose live object is cast and acquired.
 	 */
 	Ref(const Variant &p_from) {
 		this->operator=(p_from);
 	}
 
 	/**
-	 * Returns whether the wrapper holds a non-null instance pointer.
+	 * Returns `true` if an instance is held.
+	 *
+	 * **Used for** checking that a resource was acquired before calling its methods.
 	 */
 	inline bool is_valid() const { return reference != nullptr; }
 	/**
-	 * Returns whether the wrapper is empty.
+	 * Returns `true` if this reference is empty.
+	 *
+	 * **Used for** handling an optional resource that has not been assigned.
 	 */
 	inline bool is_null() const { return reference == nullptr; }
 
 	/**
-	 * Releases the held reference and clears the wrapper. Deletes the instance if the engine reports that its reference count reached zero.
+	 * Releases the reference and clears the pointer. Deletes the instance if the engine reports it can be destroyed.
+	 *
+	 * **Used for** closing a resource early while keeping the wrapper available for reuse.
 	 */
 	void unref() {
 		if (reference) {
@@ -276,7 +365,12 @@ public:
 	}
 
 	/**
-	 * Constructs a new instance with the supplied constructor arguments and replaces the held reference.
+	 * Constructs an instance of `T`, then replaces the held reference with it.
+	 *
+	 * **Used for** creating a resource in a reference-counted member.
+	 *
+	 * - `VarArgs` — Types of the arguments supplied to the constructor.
+	 * - `p_params` — Arguments passed to the constructor of `T`.
 	 */
 	template <typename... VarArgs>
 	void instantiate(VarArgs... p_params) {
@@ -285,17 +379,23 @@ public:
 	}
 
 	/**
-	 * Hashes the held instance pointer.
+	 * Returns the hash of the held pointer.
+	 *
+	 * **Used for** indexing a resource by instance identity in a hash table.
 	 */
 	uint32_t hash() const { return HashMapHasherDefault::hash(reference); }
 
 	/**
-	 * Creates an empty wrapper.
+	 * Creates an empty reference.
+	 *
+	 * **Used for** declaring an optional resource before it is loaded.
 	 */
 	Ref() = default;
 
 	/**
-	 * Releases the held reference, destroying the instance if it was the final reference.
+	 * Releases the held reference. The instance is deleted if the engine reports it can be destroyed.
+	 *
+	 * **Used for** automatically releasing resource ownership on scope exit.
 	 */
 	~Ref() {
 		unref();

@@ -90,7 +90,7 @@ inline void print_line_rich(const Variant &p_variant) {
  *
  * **Used for** reporting a failure with details such as the affected path and error code.
  *
- * - `Args` — Types of the additional values passed to `godot::UtilityFunctions::printerr()`.
+ * - `Args` — Types of the values printed after the first one.
  * - `p_variant` — First value to format.
  * - `p_args` — Additional values to append in order.
  *
@@ -110,7 +110,7 @@ void print_error(const Variant &p_variant, Args... p_args) {
  *
  * **Used for** printing a message that combines a label with a computed value.
  *
- * - `Args` — Types of the additional values passed to `godot::UtilityFunctions::print()`.
+ * - `Args` — Types of the values printed after the first one.
  * - `p_variant` — First value to format.
  * - `p_args` — Additional values to append in order.
  *
@@ -131,7 +131,7 @@ void print_line(const Variant &p_variant, Args... p_args) {
  *
  * **Used for** printing a formatted label and its value together.
  *
- * - `Args` — Types of the additional values passed to `godot::UtilityFunctions::print_rich()`.
+ * - `Args` — Types of the values printed after the first one.
  * - `p_variant` — First value to format, including any BBCode tags.
  * - `p_args` — Additional values to append in order.
  *
@@ -150,7 +150,7 @@ void print_line_rich(const Variant &p_variant, Args... p_args) {
  *
  * **Used for** reporting extra diagnostics from an importer or decoder when verbose output is requested.
  *
- * - `Args` — Types of the additional values passed to `godot::UtilityFunctions::print_verbose()`.
+ * - `Args` — Types of the values printed after the first one.
  * - `p_variant` — First value to format.
  * - `p_args` — Additional values to append in order.
  *

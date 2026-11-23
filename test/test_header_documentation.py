@@ -90,10 +90,10 @@ class HeaderDocumentationTest(unittest.TestCase):
             baseline = binding_generator.generate_engine_class_header(
                 self.convex_api, [], ["Resource"], False, None, reference=reference
             )
-        self.assertIn("vertex limit that V-HACD uses", header)
+        self.assertIn("Returns the per-hull vertex limit", header)
         self.assertNotIn("maximum number of triangles", header)
         self.assertIn("p_plane_downsampling` — Step between sampled planes.", header)
-        self.assertIn("Returns the voxelization resolution passed to V-HACD.", header)
+        self.assertIn("Returns the target voxel count", header)
         self.assertIn("threshold, from `0.001` to `1.0`", header)
         blocks = list(DOXYGEN_BLOCK.finditer(header))
         self.assertEqual(len(blocks), 33)
@@ -129,6 +129,11 @@ class HeaderDocumentationTest(unittest.TestCase):
                         expected = ["m_ret"] if returns else []
                         expected += ["m_name", *(f"m_type{i}" for i in range(1, count + 1))]
                         self.assertEqual(names, expected)
+                        lines = [line.strip().removeprefix("*").strip() for line in comment[0].splitlines()[1:-1]]
+                        self.assertLessEqual(len(" ".join(line for line in lines if line and not line.startswith("- "))), 220)
+                        for line in lines:
+                            if line.startswith("- "):
+                                self.assertLessEqual(len(line.split(" — ", 1)[1]), 70)
 
     def test_reviewed_utility_vararg_comment_attaches_to_public_template(self):
         api = json.loads((ROOT / "gdextension" / "extension_api-4-7.json").read_text(encoding="utf-8"))

@@ -35,11 +35,9 @@
 namespace godot {
 
 /**
- * A 64-bit Godot object instance identifier. Zero represents no object.
- * An identifier on its own does not keep its object alive.
+ * A 64-bit instance ID that does not keep its object alive. Zero means no object.
  *
- * **Used for** remembering an editor selection across updates and looking it up again if the object is
- * still alive.
+ * **Used for** resolving an editor selection again after a scene update.
  *
  * ```cpp
  * // In an editor selection tool, with Node *selected supplied by the selection event.
@@ -211,7 +209,7 @@ public:
 	 *
 	 * **Used for** saving an object's instance ID for work queued for a later update.
 	 *
-	 * - `p_id` — Native unsigned ID, such as one returned by `godot::Object::get_instance_id()`.
+	 * - `p_id` — Unsigned instance ID. Zero means no object.
 	 *
 	 * ```cpp
 	 * // In a Node-derived class scheduling work on itself for the next event cycle.
@@ -224,7 +222,7 @@ public:
 	 *
 	 * **Used for** recovering a target ID from a Variant-backed event before looking up the object.
 	 *
-	 * - `p_id` — Signed integer form of the ID. The value is converted to unsigned storage.
+	 * - `p_id` — Signed instance ID to store as an unsigned value.
 	 *
 	 * ```cpp
 	 * // When unpacking the Variant integer from a deferred event.

@@ -214,27 +214,16 @@ def generate_virtual_version(argcount, const=False, returns=False, required=Fals
 
     if documented:
         lines = []
-        description = (
-            f"Defines helpers that call a script override with {argcount} "
-            f"{'argument' if argcount == 1 else 'arguments'}, check for the override, and provide its registration metadata. "
-            "The call helper returns `true` on a successful call and `false` when the override is absent or the call fails."
-        )
-        if const:
-            description += " The call helper is `const` and the metadata marks the virtual as `const`."
+        qualifier = "`const` " if const else ""
+        description = f"Defines a {argcount}-argument script override check, metadata, and {qualifier}call helper."
         if returns:
-            description += " The output reference is written from the returned Variant only when the call succeeds."
-        if required:
-            description += " A failed call or missing override also logs an error once at the call site."
-        description += (
-            "\n\n**Used for** exposing an extension callback to scripts with `GDVIRTUAL_BIND` "
-            "and calling the override with `GDVIRTUAL_CALL` when the engine event occurs."
-        )
-        parameters = []
-        if returns:
-            parameters.append(("m_ret", "C++ type of the converted result and of the call helper's output reference."))
-        parameters.append(("m_name", "Script method name used to look up the override and name the generated helpers."))
+            description += " Success writes the converted result."
+        description += " Failure returns `false`" + (" and logs once." if required else ".")
+        description += "\n\n**Used for** calling script overrides via `GDVIRTUAL_CALL`."
+        parameters = [("m_ret", "C++ type of the result written by a successful call.")] if returns else []
+        parameters.append(("m_name", "Script method name used to look up the override."))
         parameters.extend(
-            (f"m_type{i}", f"C++ type of argument {i}. The call helper passes its value to the script as a Variant.")
+            (f"m_type{i}", f"C++ type of argument {i}, passed to the script as a Variant.")
             for i in range(1, argcount + 1)
         )
         append_markdown_comment(lines, "", describe_parameters(description, parameters))
@@ -502,7 +491,14 @@ def generate_gdextension_interface_loader_header(data, documented=False):
     declaration = "bool load_gdextension_interface(GDExtensionInterfaceGetProcAddress p_get_proc_address);"
     if documented:
         append_markdown_comment(
-            result, declaration, "Resolves the GDExtension procedures required by the selected Godot API."
+            result,
+            declaration,
+            describe_parameters(
+                "Loads the required engine procedures after the early error handler. "
+                "Returns `false` if a required procedure is missing.\n\n"
+                "**Used for** deciding whether extension initialization can proceed.",
+                [("p_get_proc_address", "Engine function that resolves a procedure name to its address.")],
+            ),
         )
     result.append(declaration)
     result.append("")
@@ -2152,22 +2148,19 @@ def generate_engine_class_header(
     # T is the custom class we want to register (from which the call initiates, going up the inheritance chain),
     # B is its base class (can be a custom class too, that's why we pass it).
     virtual_description = (
-        f"Calls `godot::{inherits}::register_virtuals()` first, then binds this wrapper's virtual methods "
-        "when their member pointer types differ between `T` and `B`.\n\n"
-        "**Used for** routing engine callbacks to the C++ overrides bound during extension class initialization."
+        f"Calls `godot::{inherits}::register_virtuals()`, then binds virtuals whose member pointer types "
+        "differ in `T` and `B`.\n\n"
+        "**Used for** routing engine callbacks to C++ overrides."
     )
     if class_name == "Object":
         virtual_description = (
-            "Ends the registration chain at the root of the generated object wrappers. "
-            "This step registers no overrides.\n\n"
-            "**Used for** letting wrappers whose base is `godot::Object` delegate to their base "
-            "before binding their own virtual methods."
+            "Ends virtual registration at `godot::Object` without binding overrides.\n\n"
+            "**Used for** letting derived wrappers delegate before binding their own virtuals."
         )
     elif not any(method["is_virtual"] for method in class_api.get("methods", ())):
         virtual_description = (
             f"Passes `T` and `B` to `godot::{inherits}::register_virtuals()`.\n\n"
-            "**Used for** binding overrides of inherited engine callbacks when an extension class "
-            f"derives from `godot::{class_name}`."
+            "**Used for** installing inherited engine callback overrides for derived extensions."
         )
     virtual_parameters = [("T", "Extension class whose overrides are registered."), ("B", "Immediate C++ base used to detect overrides.")]
     if class_name == "Object":

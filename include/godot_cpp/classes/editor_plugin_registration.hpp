@@ -38,9 +38,9 @@ class EditorPlugin;
 class StringName;
 
 /**
- * Tracks GDExtension editor plugin classes added to Godot. It removes any remaining plugin classes when the editor initialization level shuts down.
+ * Tracks GDExtension editor plugin classes and removes those still registered at editor shutdown.
  *
- * **Used for** activating registered extension plugins at editor startup and removing their editor instances at shutdown.
+ * **Used for** pairing editor plugin activation with cleanup during extension unload.
  *
  * ```cpp
  * // In the editor-level initializer. AtlasInspectorPlugin derives from EditorPlugin.
@@ -66,7 +66,7 @@ public:
 	 *
 	 * **Used for** activating an editor plugin when the caller has its registered name as a value.
 	 *
-	 * - `p_class_name` — Registered name of the class derived from `godot::EditorPlugin` to add.
+	 * - `p_class_name` — Registered name of a `godot::EditorPlugin` subclass.
 	 *
 	 * ```cpp
 	 * // In the editor-level initializer, after registering the AtlasInspectorPlugin class.
@@ -90,11 +90,11 @@ public:
 	 */
 	static void remove_plugin_class(const StringName &p_class_name);
 	/**
-	 * At the editor initialization level, removes all tracked plugin classes and clears the list. Other levels leave the list intact.
+	 * At editor shutdown, removes every tracked plugin and clears the list.
 	 *
 	 * **Used for** cleaning up tracked plugins in the binding's level-specific deinitialization callback.
 	 *
-	 * - `p_level` — Level being deinitialized. Cleanup runs at `GDEXTENSION_INITIALIZATION_EDITOR`.
+	 * - `p_level` — Level to shut down. Only editor level triggers cleanup.
 	 *
 	 * ```cpp
 	 * // In the binding's shutdown callback, for the level supplied by Godot.

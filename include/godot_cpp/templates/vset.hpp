@@ -34,11 +34,11 @@
 
 namespace godot {
 /**
- * A set backed by a sorted, copy-on-write vector. Insertion uses ordering to find duplicates. The initializer list is copied as supplied.
+ * A set backed by a sorted, copy-on-write vector. Insertion uses ordering to detect duplicates.
  *
  * **Used for** collecting distinct IDs in order, such as the tiles that need to be redrawn.
  *
- * - `T` — The stored element type. Its less-than comparison determines order and equivalence.
+ * - `T` — Element type. Its `operator<` defines order and equivalence.
  *
  * ```cpp
  * // Collect sorted tile IDs for redraw, once per edited tile.
@@ -60,10 +60,10 @@ class _WARN_UNUSED_ VSet {
 
 protected:
 	/**
-	 * Finds the first position where the value can be inserted in sorted order. Writes whether that position
-	 * contains an equivalent element to `r_exact`. An empty set gives index 0 and writes false.
+	 * Returns the sorted insertion index, or `0` for an empty set.
+	 * Writes whether an equivalent value is present to `r_exact`.
 	 *
-	 * **Used for** choosing whether to keep an existing element or insert a new element at the returned index.
+	 * **Used for** skipping duplicate values when inserting tiles for redraw.
 	 *
 	 * - `p_val` — Value whose position is found using the element ordering.
 	 * - `r_exact` — Output set to true for an equivalent element and false otherwise.
@@ -213,9 +213,10 @@ public:
 	_FORCE_INLINE_ int size() const { return _data.size(); }
 
 	/**
-	 * Returns a mutable reference at the given zero-based index and detaches shared storage when necessary. A replacement must preserve sorted order and uniqueness for lookup to work.
+	 * Returns a mutable element reference.
+	 * Detaches shared storage. Keep replacements sorted and unique.
 	 *
-	 * **Used for** replacing an element in place when the new value still fits between its neighbors.
+	 * **Used for** updating an ID in a sorted redraw queue.
 	 *
 	 * - `p_index` — Index from zero through one less than `godot::VSet::size()`.
 	 *
@@ -260,7 +261,7 @@ public:
 	 *
 	 * **Used for** creating a set from a preset list of distinct values already in sorted order.
 	 *
-	 * - `p_init` — An already sorted list of distinct elements when the set will be used for insertion or lookup.
+	 * - `p_init` — Sorted, distinct values for safe lookup and insertion.
 	 *
 	 * ```cpp
 	 * // Terrain layer IDs available in a preset, listed in ascending order.

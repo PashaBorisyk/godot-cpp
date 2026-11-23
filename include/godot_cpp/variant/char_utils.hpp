@@ -35,11 +35,11 @@
 namespace godot {
 
 /**
- * Binary-searches sorted inclusive ranges for the enclosing function's `p_char` and returns the result from that function.
+ * Tests whether the enclosing function's `p_char` is in the ranges and returns the result from that function.
  *
  * **Used for** implementing the Unicode predicates below from sorted ranges.
  *
- * - `m_array` — Array of inclusive ranges, ordered by starting code point. The enclosing function must supply p_char.
+ * - `m_array` — Inclusive ranges sorted by starting code point.
  *
  * ```cpp
  * // Inside is_unicode_identifier_start(), before this macro is undefined.

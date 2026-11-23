@@ -47,7 +47,7 @@
     },
     "void set_next_pass(const Ref<Material> &p_next_pass);": {
       "xml": "members/member[@setter='set_next_pass']",
-      "brief": "Sets the material for an additional draw of the same surface. The setter rejects a chain that leads back to this material. Spatial materials can draw the surface again in a separate pass. The renderer orders the pass using material settings, render priority, and distance to the camera.\n\n**Used for** adding a separate effect such as an outline pass to a spatial material.\n\n- `p_next_pass` — Material for the additional pass. An empty reference clears the pass.",
+      "brief": "Sets a material for a second draw. Rejects cycles. Pass order uses material settings, priority, and camera distance.\n\n**Used for** drawing an outline in a separate spatial pass.\n\n- `p_next_pass` — Material for the second draw. An empty reference clears it.",
       "example": [
         "// base and outline are spatial materials. outline draws the outline in a separate pass.",
         "void add_outline(godot::Material &base, const godot::Ref<godot::Material> &outline) {",
@@ -57,7 +57,7 @@
     },
     "Ref<Material> get_next_pass() const;": {
       "xml": "members/member[@getter='get_next_pass']",
-      "brief": "Returns the material assigned to the additional draw pass, or an empty reference if no pass is set. Spatial materials can draw the surface again in a separate pass. The renderer orders the pass using material settings, render priority, and distance to the camera.\n\n**Used for** walking the next-pass chain when inspecting a multipass material.",
+      "brief": "Returns the next-pass material, or an empty reference.\nPass order uses material settings, priority, and camera distance.\n\n**Used for** tracing the pass chain of a spatial material.",
       "example": [
         "int count_extra_passes(const godot::Material &base) {",
         "    int count = 0;",
@@ -70,7 +70,7 @@
     },
     "void set_render_priority(int32_t p_priority);": {
       "xml": "members/member[@setter='set_render_priority']",
-      "brief": "Sets the stored priority for sorting 3D draws. The renderer uses higher priority to sort applicable 3D draws in front of lower-priority draws. Transparent and opaque geometry stay in separate render groups.\n\n**Used for** controlling the order of overlapping transparent surfaces.\n\n- `p_priority` — Priority from `-128` to `127`. The setter rejects values outside this range.",
+      "brief": "Sets the 3D draw priority. Higher values draw in front within the same render group. Opaque and transparent draws stay separate.\n\n**Used for** ordering overlapping transparent surfaces.\n\n- `p_priority` — Priority from `-128` to `127`. Other values are rejected.",
       "example": [
         "// Set priorities for two overlapping transparent spatial materials.",
         "void draw_glass_over_tint(godot::Material &glass, godot::Material &tint) {",
@@ -81,7 +81,7 @@
     },
     "int32_t get_render_priority() const;": {
       "xml": "members/member[@getter='get_render_priority']",
-      "brief": "Returns the priority stored for sorting draws, from `-128` to `127`. The renderer uses higher priority to sort applicable 3D draws in front of lower-priority draws. Transparent and opaque geometry stay in separate render groups.\n\n**Used for** comparing the priorities of materials when diagnosing the order of transparent draws.",
+      "brief": "Returns the 3D draw priority, from `-128` to `127`.\nHigher values draw in front within the same render group.\n\n**Used for** diagnosing the order of transparent draws.",
       "example": [
         "bool has_higher_priority(const godot::Material &overlay, const godot::Material &surface) {",
         "    return overlay.get_render_priority() > surface.get_render_priority();",
@@ -90,7 +90,7 @@
     },
     "void inspect_native_shader_code();": {
       "xml": "methods/method[@name='inspect_native_shader_code']",
-      "brief": "Queues the editor's native shader viewer for the material's shader when the main loop is a scene tree and the shader RID is valid. The viewer can show generated variants and internal shader code.\n\n**Used for** debugging how a material's shader is translated for the rendering backend.",
+      "brief": "Queues the editor's native shader viewer with a valid shader RID and a scene tree.\n\n**Used for** checking shader code and variants generated for the rendering backend.",
       "example": [
         "void inspect_selected_shader(godot::Material &selected) {",
         "    if (godot::Engine::get_singleton()->is_editor_hint()) {",
@@ -101,7 +101,7 @@
     },
     "Ref<Resource> create_placeholder() const;": {
       "xml": "methods/method[@name='create_placeholder']",
-      "brief": "Creates and returns a `godot::PlaceholderMaterial` as a `godot::Ref<godot::Resource>`.\n\n**Used for** using a material resource slot where the original rendering behavior is unnecessary.",
+      "brief": "Returns a `godot::PlaceholderMaterial` as `godot::Ref<godot::Resource>`.\n\n**Used for** filling a resource slot where rendering behavior is unnecessary.",
       "example": [
         "godot::Ref<godot::Resource> make_metadata_preview(const godot::Material &material) {",
         "    auto placeholder = material.create_placeholder();",
@@ -112,7 +112,7 @@
     },
     "virtual RID _get_shader_rid() const;": {
       "xml": "methods/method[@name='_get_shader_rid']",
-      "brief": "Supplies the RID of the shader used by an extension material. Godot's shader lookup uses an invalid RID if the callback has no override.\n\n**Used for** allowing the editor to open the native shader viewer for an extension material's shader.",
+      "brief": "Supplies the extension material's shader RID. Without an override, Godot's lookup uses an invalid RID.\n\n**Used for** opening the editor's native shader viewer for this material.",
       "example": [
         "// Inside a GDCLASS material extension whose shader member is a godot::Ref<godot::Shader>.",
         "godot::RID _get_shader_rid() const override {",
@@ -122,7 +122,7 @@
     },
     "virtual Shader::Mode _get_shader_mode() const;": {
       "xml": "methods/method[@name='_get_shader_mode']",
-      "brief": "Supplies the shader mode of an extension material. Godot's shader-mode lookup uses `godot::Shader::MODE_MAX` if the callback has no override.\n\n**Used for** letting engine tools identify the shader domain, such as spatial rendering or canvas drawing.",
+      "brief": "Supplies the shader mode. Without an override, Godot's lookup uses `godot::Shader::MODE_MAX`.\n\n**Used for** identifying a material's rendering domain in engine tools.",
       "example": [
         "// Inside a GDCLASS material extension that supplies a spatial shader.",
         "godot::Shader::Mode _get_shader_mode() const override {",
@@ -132,7 +132,7 @@
     },
     "virtual bool _can_do_next_pass() const;": {
       "xml": "methods/method[@name='_can_do_next_pass']",
-      "brief": "Reports whether this extension material exposes its next-pass setting. The base lookup returns `false` without an override.\n\n**Used for** showing the next-pass field in the Inspector for a material that supports another draw pass.",
+      "brief": "Reports whether the material exposes the next-pass setting. Without an override, the lookup gives `false`.\n\n**Used for** exposing an extra draw pass in the Inspector.",
       "example": [
         "// Inside a GDCLASS material extension whose shader supports another draw pass.",
         "bool _can_do_next_pass() const override { return true; }"
@@ -140,7 +140,7 @@
     },
     "virtual bool _can_use_render_priority() const;": {
       "xml": "methods/method[@name='_can_use_render_priority']",
-      "brief": "Reports whether this extension material exposes its render priority setting. The base lookup returns `false` without an override.\n\n**Used for** showing the render priority field in the Inspector for a material that supports draw order control.",
+      "brief": "Reports whether the material exposes render priority. Without an override, the lookup gives `false`.\n\n**Used for** exposing a draw-order control in the Inspector.",
       "example": [
         "// Inside a GDCLASS material extension that renders transparent spatial surfaces.",
         "bool _can_use_render_priority() const override { return true; }"

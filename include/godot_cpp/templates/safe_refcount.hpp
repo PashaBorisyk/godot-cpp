@@ -50,11 +50,11 @@ namespace godot {
 
 // These are used in very specific areas of the engine where it's critical that these guarantees are held
 /**
- * Asserts the size, alignment, and trivial destruction requirements used when treating supported values as atomic numeric storage.
+ * Checks size, alignment, and trivial atomic destruction for numeric storage.
  *
- * **Used for** checking the layout assumptions of storage that represents a number and its atomic wrapper.
+ * **Used for** checking ABI compatibility before sharing storage with an atomic wrapper.
  *
- * - `m_type` — Numeric storage type whose size, alignment, and atomic destruction properties are checked.
+ * - `m_type` — Numeric type whose atomic wrapper is checked.
  */
 #define SAFE_NUMERIC_TYPE_PUN_GUARANTEES(m_type) \
 	static_assert(sizeof(::godot::SafeNumeric<m_type>) == sizeof(m_type)); \
@@ -70,11 +70,11 @@ namespace godot {
 	static_assert(alignof(::godot::SafeFlag) == alignof(bool));
 
 /**
- * Wraps a lock-free atomic number with explicit load, store, and read-modify-write operations.
+ * Wraps a lock-free atomic number. Arithmetic and bit operations require support from the element type.
  *
  * **Used for** sharing a numeric state such as a copy-on-write allocation's reference count.
  *
- * - `T` — Numeric type with an always lock-free atomic representation. Each selected arithmetic or bit operation must support this type.
+ * - `T` — Numeric type whose atomic storage must always be lock-free.
  */
 template <typename T>
 class SafeNumeric {
@@ -227,7 +227,7 @@ public:
 	 *
 	 * **Used for** publishing a high-water mark shared by several writers.
 	 *
-	 * - `p_value` — Minimum value to publish. Existing values at least this large are retained.
+	 * - `p_value` — Minimum value to publish. Higher values stay unchanged.
 	 */
 	_ALWAYS_INLINE_ T exchange_if_greater(T p_value) {
 		while (true) {

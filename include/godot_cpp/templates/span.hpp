@@ -36,8 +36,7 @@
 namespace godot {
 
 /**
- * Tests equality over the given number of elements. Identical fundamental types are compared by byte
- * representation. Other types are compared with element inequality.
+ * Tests range equality. Equal fundamental types use byte comparison. Other types use element inequality.
  *
  * **Used for** checking whether a decoded file header matches the expected signature.
  *
@@ -45,7 +44,7 @@ namespace godot {
  * - `RHS` — Element type of the second range.
  * - `p_lhs` — Pointer to the first range.
  * - `p_rhs` — Pointer to the second range.
- * - `p_size` — Element count in both ranges. Zero permits empty ranges without dereferencing the pointers.
+ * - `p_size` — Element count in both ranges. Zero permits null pointers.
  *
  * ```cpp
  * const uint8_t header[] = { 0x47, 0x44 };
@@ -147,13 +146,11 @@ public:
 	_FORCE_INLINE_ constexpr Span() = default;
 
 	/**
-	 * Borrows the given element range. A nonempty range requires a valid pointer and at least the given
-	 * number of elements. In a debug build, a null pointer with a nonzero length reports an error and
-	 * becomes an empty view.
+	 * Borrows an element range. Debug builds report a null pointer with nonzero length and keep the view empty.
 	 *
 	 * **Used for** viewing part of a larger buffer without copying the selected elements.
 	 *
-	 * - `p_ptr` — Pointer to the first element. A nonempty range requires a valid pointer.
+	 * - `p_ptr` — First element. Must be valid when the range is nonempty.
 	 * - `p_len` — Number of accessible elements beginning at `p_ptr`.
 	 *
 	 * ```cpp
@@ -240,7 +237,8 @@ public:
 	//       This is slower than direct buffer access and can prevent autovectorization.
 	//       If the bounds are known, use ptr() subscript instead.
 	/**
-	 * Returns the element at the zero-based index. An out-of-range index triggers a crash check.
+	 * Returns a const reference to the indexed element.
+	 * An out-of-range index triggers a crash check.
 	 *
 	 * **Used for** reading a known field of a fixed-size record.
 	 *
@@ -286,12 +284,11 @@ public:
 	_FORCE_INLINE_ constexpr const T *end() const { return _ptr + _len; }
 
 	/**
-	 * Views the same storage as elements of another type, dropping any trailing partial element. The
-	 * caller must ensure the storage is suitable for access through that type.
+	 * Views the same storage as another type. Drops partial elements. The caller must ensure access through that type is valid.
 	 *
 	 * **Used for** examining the raw bytes of an object array.
 	 *
-	 * - `T1` — Type through which to read the same storage. The storage must meet its alignment and access rules.
+	 * - `T1` — Element type. It must match the buffer's alignment and access rules.
 	 *
 	 * ```cpp
 	 * const uint32_t colors[] = { 0x11223344, 0x55667788 };
@@ -345,7 +342,7 @@ public:
 	 * **Used for** locating the previous delimiter before a known field.
 	 *
 	 * - `p_val` — Element to match.
-	 * - `p_from` — First index to search backward. It must be less than the size of the span.
+	 * - `p_from` — First index to search. It must be within the span.
 	 *
 	 * ```cpp
 	 * const godot::Span<char> address("root/room/light");
@@ -369,8 +366,8 @@ public:
 	 */
 	_FORCE_INLINE_ constexpr int64_t rfind(const T &p_val) const { return rfind(p_val, size() - 1); }
 	/**
-	 * Searches backward from the supplied starting index for a matching sequence. Returns `-1` if absent.
-	 * The starting position must leave enough elements for the sequence.
+	 * Returns the last matching start index at or before `p_from`, or `-1`.
+	 * The sequence must fit at the starting index.
 	 *
 	 * **Used for** locating the previous occurrence of a multi-character delimiter.
 	 *
@@ -387,8 +384,8 @@ public:
 	template <typename T1 = T>
 	constexpr int64_t rfind_sequence(const Span<T1> &p_span, uint64_t p_from) const;
 	/**
-	 * Searches backward from the last position where the sequence fits. Returns its starting index or `-1`
-	 * if absent. The sequence must fit within the view.
+	 * Returns the last matching start index or `-1` if absent.
+	 * The sequence must fit within the view.
 	 *
 	 * **Used for** finding the final separator in a qualified name.
 	 *
@@ -417,14 +414,14 @@ public:
 	 */
 	constexpr uint64_t count(const T &p_val) const;
 	/**
-	 * Returns an insertion index in a span sorted by the supplied comparison. The index can equal the span
-	 * size.
+	 * Returns an insertion index from zero to the span size.
+	 * The span must be sorted by the supplied comparison.
 	 *
 	 * **Used for** finding where to insert a key in an already sorted range.
 	 *
 	 * - `Comparator` — Comparison type that defines the order of the span.
 	 * - `p_value` — Value whose insertion index is searched.
-	 * - `p_before` — Pass true to insert before equivalent values, or false to insert after them.
+	 * - `p_before` — `true` inserts before equal values, `false` after them.
 	 * - `p_compare` — Comparison used to sort the range.
 	 *
 	 * ```cpp
@@ -437,8 +434,8 @@ public:
 	constexpr uint64_t bisect(const T &p_value, bool p_before, Comparator p_compare = Comparator()) const;
 
 	/**
-	 * Returns the greatest element according to the element type's greater-than operator. The span must be
-	 * nonempty.
+	 * Returns the greatest element according to `operator>`.
+	 * The span must be nonempty.
 	 *
 	 * **Used for** finding the peak of a nonempty set of samples.
 	 *
@@ -547,7 +544,7 @@ constexpr T Span<T>::max() const {
 }
 
 /**
- * Returns whether the spans have equal lengths and matching content under `godot::are_spans_equal`.
+ * Tests equal lengths and content using `godot::are_spans_equal`.
  *
  * **Used for** checking whether a decoded signature exactly matches the expected byte span.
  *
@@ -567,7 +564,7 @@ bool operator==(const Span<LHS> &p_lhs, const Span<RHS> &p_rhs) {
 }
 
 /**
- * Returns whether the spans differ in length or content under `godot::are_spans_equal`.
+ * Tests for different lengths or content using `godot::are_spans_equal`.
  *
  * **Used for** detecting changes in a saved token before updating a cache.
  *

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "include": {
+    "last_verified_header": "godot_cpp/core/class_db.hpp",
+    "prefix_sha256": "cb003a7fd80388b1b12393b70277ac4d64f318399e9df58d3a3eab8583a8708f",
+    "rules_sha256_at_verification": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "verification_batch": {
+      "file": "handwritten-checkpoint.json",
+      "key": "class-db-public-cursor"
+    }
+  },
+  "gen/include": null
+}

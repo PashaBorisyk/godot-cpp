@@ -62,22 +62,32 @@ namespace godot {
 
 /**
  * Holds the exposed name of a bound method and its argument names in declaration order.
+ *
+ * **Used for** passing exposed names to `godot::ClassDB::bind_method()`.
  */
 struct MethodDefinition {
 	/**
 	 * The name exposed to Godot for this binding.
+	 *
+	 * **Used for** selecting the name scripts use to call a bound method.
 	 */
 	StringName name;
 	/**
 	 * Names of the declared parameters in argument order.
+	 *
+	 * **Used for** associating names with the argument types in a binding.
 	 */
 	List<StringName> args;
 	/**
 	 * Creates an empty binding description.
+	 *
+	 * **Used for** assembling a binding description one field at a time.
 	 */
 	MethodDefinition() {}
 	/**
 	 * Records a method name with no argument names.
+	 *
+	 * **Used for** preparing a binding for a method with no parameters.
 	 *
 	 * - `p_name` — Name used to expose the method to Godot.
 	 */
@@ -86,20 +96,26 @@ struct MethodDefinition {
 };
 
 /**
- * Describes a method by name without naming any parameters.
+ * Returns a binding description with no parameter names.
+ *
+ * **Used for** naming a method that scripts will call without arguments.
  *
  * - `p_name` — Name used to expose the method to Godot.
  */
 MethodDefinition D_METHOD(StringName p_name);
 /**
- * Describes a method and names its first parameter.
+ * Returns a binding description with one parameter name.
+ *
+ * **Used for** exposing a one-argument method with a named argument to scripts.
  *
  * - `p_name` — Name used to expose the method to Godot.
  * - `p_arg1` — Name of the first method parameter.
  */
 MethodDefinition D_METHOD(StringName p_name, StringName p_arg1);
 /**
- * Builds a method description from a name and a list of parameter names in order.
+ * Returns a binding description with the supplied names in order.
+ *
+ * **Used for** exposing a multi-argument method with named parameters to scripts.
  *
  * - `Args` — Types of additional names convertible to interned strings.
  * - `p_name` — Name used to expose the method to Godot.
@@ -115,6 +131,8 @@ MethodDefinition D_METHOD(StringName p_name, StringName p_arg1, Args... args) {
 
 /**
  * Registers extension classes and their members with Godot. Tracks the bindings used for dispatch and class shutdown.
+ *
+ * **Used for** exposing a custom extension class and its methods to Godot.
  */
 class ClassDB {
 	/**
@@ -302,6 +320,8 @@ public:
 	/**
 	 * Registers a concrete extension class. The virtual flag is passed to the engine's class registration.
 	 *
+	 * **Used for** making a concrete extension class available to the engine.
+	 *
 	 * - `T` — C++ extension class being registered.
 	 * - `p_virtual` — Whether to mark the class virtual in Godot's registry.
 	 */
@@ -310,6 +330,8 @@ public:
 	/**
 	 * Registers an extension class as abstract.
 	 *
+	 * **Used for** registering a base class that requires a concrete subclass.
+	 *
 	 * - `T` — C++ extension class being registered.
 	 */
 	template <typename T>
@@ -317,12 +339,16 @@ public:
 	/**
 	 * Registers an extension class with engine exposure disabled.
 	 *
+	 * **Used for** registering a type for engine use without exposing it to scripts.
+	 *
 	 * - `T` — C++ extension class being registered.
 	 */
 	template <typename T>
 	static void register_internal_class();
 	/**
 	 * Registers an exposed extension class with the runtime-class flag.
+	 *
+	 * **Used for** registering a type that the editor can represent with placeholders.
 	 *
 	 * - `T` — C++ extension class being registered.
 	 */
@@ -373,7 +399,10 @@ public:
 	}
 
 	/**
-	 * Registers a C++ instance method for Godot. The trailing values supply defaults for the final parameters. Returns the stored binding or null on registration failure.
+	 * Registers a C++ instance method with optional trailing defaults.
+	 * Returns the stored binding, or null on failure.
+	 *
+	 * **Used for** exposing an object method to scripts.
 	 *
 	 * - `N` — Type of the method description.
 	 * - `M` — C++ function pointer type.
@@ -386,7 +415,10 @@ public:
 	static MethodBind *bind_method(N p_method_name, M p_method, VarArgs... p_args);
 
 	/**
-	 * Registers a C++ static function as a method on the named extension class, with optional trailing default arguments.
+	 * Registers a static function with optional trailing defaults.
+	 * Returns the stored binding, or null on failure.
+	 *
+	 * **Used for** exposing a function that scripts can call without an instance.
 	 *
 	 * - `N` — Type of the method description.
 	 * - `M` — C++ function pointer type.
@@ -400,21 +432,26 @@ public:
 	static MethodBind *bind_static_method(StringName p_class, N p_method_name, M p_method, VarArgs... p_args);
 
 	/**
-	 * Registers a method that receives the incoming variant array and argument count directly. Returns null if class or method registration fails.
+	 * Registers a method that receives a Variant argument array and its count.
+	 * Returns the stored binding, or null on failure.
+	 *
+	 * **Used for** exposing a method that handles a variable number of script arguments.
 	 *
 	 * - `M` — Member function pointer type for the variadic signature.
-	 * - `p_flags` — Method flags passed to the binding request. This implementation does not read them.
+	 * - `p_flags` — Unused by the current binding implementation.
 	 * - `p_name` — Name exposed to Godot.
-	 * - `p_method` — Member function that accepts a variant pointer array, argument count, and error output.
+	 * - `p_method` — Member callable receiving arguments, their count, and an error slot.
 	 * - `p_info` — Registration metadata for the declared argument prefix.
 	 * - `p_default_args` — Default variants associated with the method registration.
-	 * - `p_return_nil_is_variant` — Forwarded to the binding constructor. Return metadata is currently derived from the C++ return type.
+	 * - `p_return_nil_is_variant` — Legacy flag forwarded while creating the method binding.
 	 */
 	template <typename M>
 	static MethodBind *bind_vararg_method(uint32_t p_flags, StringName p_name, M p_method, const MethodInfo &p_info = MethodInfo(), const LocalVector<Variant> &p_default_args = LocalVector<Variant>{}, bool p_return_nil_is_variant = true);
 
 	/**
 	 * Registers a property group with a display name and member name prefix.
+	 *
+	 * **Used for** organizing related extension properties in one Inspector group.
 	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_name` — Group name displayed by the editor.
@@ -424,23 +461,29 @@ public:
 	/**
 	 * Registers a property subgroup with a display name and member name prefix.
 	 *
+	 * **Used for** organizing a smaller set of properties within an Inspector group.
+	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_name` — Group name displayed by the editor.
 	 * - `p_prefix` — Property name prefix used to match members of the group.
 	 */
 	static void add_property_subgroup(const StringName &p_class, const String &p_name, const String &p_prefix);
 	/**
-	 * Registers a property with named accessors. The getter is required. A nonnegative index adds an index parameter to both the getter and the optional setter.
+	 * Registers a property with a required getter and optional setter. An index of zero or greater is passed first to both accessors.
+	 *
+	 * **Used for** exposing an extension setting to the Inspector and scripts.
 	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_pinfo` — Property type, name, and editor metadata.
 	 * - `p_setter` — Registered setter name, or an empty name for a read-only property.
 	 * - `p_getter` — Required registered getter name.
-	 * - `p_index` — Nonnegative index supplied to the getter and setter of an indexed property. Use a negative value for a plain property.
+	 * - `p_index` — Index passed first to accessors. A negative value omits it.
 	 */
 	static void add_property(const StringName &p_class, const PropertyInfo &p_pinfo, const StringName &p_setter, const StringName &p_getter, int p_index = -1);
 	/**
 	 * Registers a named signal and its argument descriptors on an extension class.
+	 *
+	 * **Used for** allowing scripts to connect to an extension event.
 	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_signal` — Signal name and argument metadata.
@@ -449,8 +492,10 @@ public:
 	/**
 	 * Exposes an integer constant. An enum name associates the constant with that enum and the bitfield flag marks a flags declaration.
 	 *
+	 * **Used for** exposing a named constant, enum value, or flag to scripts.
+	 *
 	 * - `p_class_name` — Registered engine class name used to index the entry.
-	 * - `p_enum_name` — Enum that owns the constant, or an empty name for a standalone constant.
+	 * - `p_enum_name` — Owning enum name, or empty for a standalone constant.
 	 * - `p_constant_name` — Name exposed to Godot.
 	 * - `p_constant_value` — Integer associated with the name.
 	 * - `p_is_bitfield` — Whether the value belongs to a bitfield.
@@ -460,6 +505,8 @@ public:
 	/**
 	 * Registers a C++ callback implementing an engine virtual method with the matching signature hash.
 	 *
+	 * **Used for** routing an engine virtual call to its extension implementation.
+	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_method` — Name of the registered method.
 	 * - `p_call` — Typed callback implementing the virtual method.
@@ -468,18 +515,22 @@ public:
 	static void bind_virtual_method(const StringName &p_class, const StringName &p_method, GDExtensionClassCallVirtual p_call, uint32_t p_hash);
 	// Add a new virtual method that can be implemented by scripts.
 	/**
-	 * Registers a virtual method signature that scripts can implement. A matching list of names supplies the exposed argument names.
+	 * Registers a virtual signature for scripts. Replaces argument names only when the supplied count matches.
+	 *
+	 * **Used for** publishing an extension callback that scripts can override.
 	 *
 	 * - `p_class` — Name of the registered extension class that receives the declaration.
 	 * - `p_method` — Signature and flags of the virtual method exposed to scripts.
-	 * - `p_arg_names` — Argument names in signature order. A count mismatch leaves the names from the supplied method information.
+	 * - `p_arg_names` — Names in order. A count mismatch retains the method's names.
 	 */
 	static void add_virtual_method(const StringName &p_class, const MethodInfo &p_method, const Vector<StringName> &p_arg_names = Vector<StringName>());
 
 	/**
-	 * Finds a bound method on a custom class or its registered custom ancestors. Returns null if absent.
+	 * Returns a bound method, or null if absent. Searches the class and its registered extension ancestors.
 	 *
-	 * - `p_class` — Name of the registered extension class that receives the declaration.
+	 * **Used for** looking up a custom method by name before dispatching it.
+	 *
+	 * - `p_class` — Registered extension class where lookup starts.
 	 * - `p_method` — Name of the registered method.
 	 */
 	static MethodBind *get_method(const StringName &p_class, const StringName &p_method);

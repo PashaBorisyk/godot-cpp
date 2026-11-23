@@ -35,7 +35,12 @@
 namespace godot {
 
 /**
- * Stores two values that can have different types. Ordering compares the first members and uses the second members to break ties.
+ * Stores two values. Ordering compares the first member, then the second for ties.
+ *
+ * **Used for** keeping an atlas frame's row and column together.
+ *
+ * - `F` — First member type.
+ * - `S` — Second member type.
  *
  * ```cpp
  * // Keep the row and column of the selected frame together.
@@ -46,7 +51,9 @@ namespace godot {
 template <typename F, typename S>
 struct Pair {
 	/**
-	 * Holds the first value, which also takes priority in ordering comparisons.
+	 * Stores the first value and primary sort key.
+	 *
+	 * **Used for** holding the row of an atlas frame.
 	 *
 	 * ```cpp
 	 * // frame is a Pair<int, int> holding an atlas row and column.
@@ -55,7 +62,9 @@ struct Pair {
 	 */
 	F first{};
 	/**
-	 * Holds the second value, which breaks ties in ordering comparisons.
+	 * Stores the second value and breaks sort ties.
+	 *
+	 * **Used for** holding the column of an atlas frame.
 	 *
 	 * ```cpp
 	 * // frame is a Pair<int, int> holding an atlas row and column.
@@ -65,7 +74,9 @@ struct Pair {
 	S second{};
 
 	/**
-	 * Uses empty brace initialization for both values. Scalar members are initialized to zero.
+	 * Initializes both values with empty braces. Scalars start at zero.
+	 *
+	 * **Used for** starting atlas traversal at row and column zero.
 	 *
 	 * ```cpp
 	 * Pair<int, int> cell; // Start scanning an atlas at row 0, column 0.
@@ -74,7 +85,12 @@ struct Pair {
 	 */
 	constexpr Pair() = default;
 	/**
-	 * Copies the supplied values into the first and second members in that order.
+	 * Copies the two values into their members.
+	 *
+	 * **Used for** keeping an image's decoded width and height together.
+	 *
+	 * - `p_first` — Value to copy into `first`.
+	 * - `p_second` — Value to copy into `second`.
 	 *
 	 * ```cpp
 	 * // Keep both dimensions returned by the image decoder.
@@ -86,7 +102,11 @@ struct Pair {
 			first(p_first), second(p_second) {}
 
 	/**
-	 * Returns true if both first and second are equal.
+	 * Returns `true` if both members are equal.
+	 *
+	 * **Used for** reusing a cached draw command
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -95,7 +115,11 @@ struct Pair {
 	 */
 	constexpr bool operator==(const Pair &p_other) const { return first == p_other.first && second == p_other.second; }
 	/**
-	 * Returns true if either first or second differs.
+	 * Returns `true` if either member differs.
+	 *
+	 * **Used for** rebuilding a draw command when its state changes
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -104,7 +128,12 @@ struct Pair {
 	 */
 	constexpr bool operator!=(const Pair &p_other) const { return first != p_other.first || second != p_other.second; }
 	/**
-	 * Returns true if the first is smaller or equal with a smaller second.
+	 * Returns `true` if this entry precedes the other.
+	 * Compares `first`, then `second` when tied.
+	 *
+	 * **Used for** choosing which entry to draw first
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -113,7 +142,12 @@ struct Pair {
 	 */
 	constexpr bool operator<(const Pair &p_other) const { return first == p_other.first ? (second < p_other.second) : (first < p_other.first); }
 	/**
-	 * Returns true if the first is smaller or equal with a second at most as large.
+	 * Returns `true` if this entry precedes or equals the other.
+	 * Compares `first`, then `second` when tied.
+	 *
+	 * **Used for** scanning through an inclusive upper bound
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -122,7 +156,12 @@ struct Pair {
 	 */
 	constexpr bool operator<=(const Pair &p_other) const { return first == p_other.first ? (second <= p_other.second) : (first < p_other.first); }
 	/**
-	 * Returns true if the first is larger or equal with a larger second.
+	 * Returns `true` if this entry follows the other.
+	 * Compares `first`, then `second` when tied.
+	 *
+	 * **Used for** choosing the first entry in a reverse scan
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -131,7 +170,12 @@ struct Pair {
 	 */
 	constexpr bool operator>(const Pair &p_other) const { return first == p_other.first ? (second > p_other.second) : (first > p_other.first); }
 	/**
-	 * Returns true if the first is larger or equal with a second at least as large.
+	 * Returns `true` if this entry follows or equals the other.
+	 * Compares `first`, then `second` when tied.
+	 *
+	 * **Used for** scanning backward to an inclusive lower bound
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (texture page, frame index) entries from the draw list.
@@ -142,7 +186,12 @@ struct Pair {
 };
 
 /**
- * A comparator that orders pairs by the first member and then the second.
+ * Orders pairs by first member, then second member.
+ *
+ * **Used for** sorting an atlas draw list by texture page and frame index.
+ *
+ * - `F` — First member type.
+ * - `S` — Second member type.
  *
  * ```cpp
  * // Sort existing frame entries by texture page, then by frame index.
@@ -152,7 +201,12 @@ struct Pair {
 template <typename F, typename S>
 struct PairSort {
 	/**
-	 * Delegates to `Pair::operator<()` so pairs with equal first members are ordered by their second members.
+	 * Returns `true` when the left pair precedes the right pair.
+	 *
+	 * **Used for** selecting the next frame while merging two sorted render lists.
+	 *
+	 * - `p_lhs` — Left pair.
+	 * - `p_rhs` — Right pair.
 	 *
 	 * ```cpp
 	 * // Merge two sorted lists of (texture page, frame index) pairs.
@@ -165,7 +219,12 @@ struct PairSort {
 };
 
 /**
- * Allows array placement to clear a pair's storage to zero when both member types are zero-constructible.
+ * Marks a pair zero-constructible if both member types are zero-constructible.
+ *
+ * **Used for** letting array storage zero-initialize newly allocated atlas counters.
+ *
+ * - `F` — First member type tested by the trait.
+ * - `S` — Second member type tested by the trait.
  *
  * ```cpp
  * // In the atlas importer, new row/column counters begin at zero.
@@ -177,7 +236,12 @@ template <typename F, typename S>
 struct is_zero_constructible<Pair<F, S>> : std::conjunction<is_zero_constructible<F>, is_zero_constructible<S>> {};
 
 /**
- * Holds a key that cannot be changed and a value that can be changed. Map entries use this layout to keep key lookup stable when a value is edited.
+ * Stores a const key and a mutable value.
+ *
+ * **Used for** editing a map entry without changing its lookup key.
+ *
+ * - `K` — Key type.
+ * - `V` — Value type.
  *
  * ```cpp
  * // Store a tile ID and its collision-layer mask, then enable layer 2.
@@ -188,7 +252,9 @@ struct is_zero_constructible<Pair<F, S>> : std::conjunction<is_zero_constructibl
 template <typename K, typename V>
 struct KeyValue {
 	/**
-	 * Holds the read-only key of this entry.
+	 * Stores the read-only key.
+	 *
+	 * **Used for** identifying the entry in map lookups.
 	 *
 	 * ```cpp
 	 * // Copy the cache entry's ID into a diagnostics record.
@@ -197,7 +263,9 @@ struct KeyValue {
 	 */
 	const K key{};
 	/**
-	 * Holds the value associated with this entry's key.
+	 * Stores the mutable value for this key.
+	 *
+	 * **Used for** updating a tile's collision mask while keeping its ID.
 	 *
 	 * ```cpp
 	 * // Change the layer mask without replacing the entry's tile ID.
@@ -207,7 +275,11 @@ struct KeyValue {
 	V value{};
 
 	/**
-	 * Disallows copy assignment so assignment cannot replace the stored key.
+	 * Deletes copy assignment because the key is const.
+	 *
+	 * **Used for** enforcing fixed keys when editing copied data.
+	 *
+	 * - `p_kv` — Source entry of the deleted assignment.
 	 *
 	 * ```cpp
 	 * // Whole-entry copy assignment is deleted. Copy the preview state into a stable entry.
@@ -216,7 +288,11 @@ struct KeyValue {
 	 */
 	KeyValue &operator=(const KeyValue &p_kv) = delete;
 	/**
-	 * Disallows move assignment so assignment cannot replace the stored key.
+	 * Deletes move assignment because the key is const.
+	 *
+	 * **Used for** requiring callers to move values into existing entries.
+	 *
+	 * - `p_kv` — Source entry of the deleted move assignment.
 	 *
 	 * ```cpp
 	 * // Whole-entry move assignment is deleted. Move the label into a stable entry.
@@ -226,7 +302,11 @@ struct KeyValue {
 	KeyValue &operator=(KeyValue &&p_kv) = delete;
 
 	/**
-	 * Constructs an entry by copying the source key and value.
+	 * Copies the source key and value.
+	 *
+	 * **Used for** saving an entry's state before editing its value.
+	 *
+	 * - `p_kv` — Entry whose key and value are copied.
 	 *
 	 * ```cpp
 	 * // Capture the old (tile ID, collision mask) before editing it.
@@ -236,7 +316,11 @@ struct KeyValue {
 	 */
 	constexpr KeyValue(const KeyValue &p_kv) = default;
 	/**
-	 * Constructs an entry from an rvalue. The source key is const and the value can be moved if its type supports moving.
+	 * Initializes the key from a const rvalue and the value from an rvalue.
+	 *
+	 * **Used for** transferring a temporary value into an entry with its original key.
+	 *
+	 * - `p_kv` — Source entry. Its value can be moved.
 	 *
 	 * ```cpp
 	 * // Transfer a temporary preview label into an entry whose ID stays fixed.
@@ -245,7 +329,12 @@ struct KeyValue {
 	 */
 	constexpr KeyValue(KeyValue &&p_kv) = default;
 	/**
-	 * Constructs an entry by copying the supplied key and value.
+	 * Copies the supplied key and value into the entry.
+	 *
+	 * **Used for** associating a preview ID with a title.
+	 *
+	 * - `p_key` — Key to copy.
+	 * - `p_value` — Value to copy.
 	 *
 	 * ```cpp
 	 * // Associate a preview ID with the title loaded from its metadata.
@@ -255,7 +344,11 @@ struct KeyValue {
 	constexpr KeyValue(const K &p_key, const V &p_value) :
 			key(p_key), value(p_value) {}
 	/**
-	 * Constructs an entry from a pair. The first member supplies the key, and the second supplies the value.
+	 * Copies the pair's first member as the key and its second as the value.
+	 *
+	 * **Used for** using a tile ID and mask imported as a pair.
+	 *
+	 * - `p_pair` — Pair whose members supply the key and value.
 	 *
 	 * ```cpp
 	 * // An importer supplied (tile ID, layer mask) as a Pair<int, uint32_t>.
@@ -266,7 +359,11 @@ struct KeyValue {
 			key(p_pair.first), value(p_pair.second) {}
 
 	/**
-	 * Returns true if both key and value are equal.
+	 * Returns `true` if both members are equal.
+	 *
+	 * **Used for** reusing a cached draw command
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -275,7 +372,11 @@ struct KeyValue {
 	 */
 	constexpr bool operator==(const KeyValue &p_other) const { return key == p_other.key && value == p_other.value; }
 	/**
-	 * Returns true if either key or value differs.
+	 * Returns `true` if either member differs.
+	 *
+	 * **Used for** rebuilding a draw command when its state changes
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -284,7 +385,12 @@ struct KeyValue {
 	 */
 	constexpr bool operator!=(const KeyValue &p_other) const { return key != p_other.key || value != p_other.value; }
 	/**
-	 * Returns true if the key is smaller or equal with a smaller value.
+	 * Returns `true` if this entry precedes the other.
+	 * Compares `key`, then `value` when tied.
+	 *
+	 * **Used for** choosing which entry to draw first
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -293,7 +399,12 @@ struct KeyValue {
 	 */
 	constexpr bool operator<(const KeyValue &p_other) const { return key == p_other.key ? (value < p_other.value) : (key < p_other.key); }
 	/**
-	 * Returns true if the key is smaller or equal with a value at most as large.
+	 * Returns `true` if this entry precedes or equals the other.
+	 * Compares `key`, then `value` when tied.
+	 *
+	 * **Used for** scanning through an inclusive upper bound
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -302,7 +413,12 @@ struct KeyValue {
 	 */
 	constexpr bool operator<=(const KeyValue &p_other) const { return key == p_other.key ? (value <= p_other.value) : (key < p_other.key); }
 	/**
-	 * Returns true if the key is larger or equal with a larger value.
+	 * Returns `true` if this entry follows the other.
+	 * Compares `key`, then `value` when tied.
+	 *
+	 * **Used for** choosing the first entry in a reverse scan
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -311,7 +427,12 @@ struct KeyValue {
 	 */
 	constexpr bool operator>(const KeyValue &p_other) const { return key == p_other.key ? (value > p_other.value) : (key > p_other.key); }
 	/**
-	 * Returns true if the key is larger or equal with a value at least as large.
+	 * Returns `true` if this entry follows or equals the other.
+	 * Compares `key`, then `value` when tied.
+	 *
+	 * **Used for** scanning backward to an inclusive lower bound
+	 *
+	 * - `p_other` — Right-hand entry to compare.
 	 *
 	 * ```cpp
 	 * // Compare (tile ID, collision mask) entries from the draw list.
@@ -322,7 +443,12 @@ struct KeyValue {
 };
 
 /**
- * A comparator that orders entries by key alone. Entries with the same key compare equivalent even when their values differ.
+ * Orders entries by their keys alone.
+ *
+ * **Used for** finding an entry by key with a binary search.
+ *
+ * - `K` — Key type compared by the sorter.
+ * - `V` — Value type ignored by the sorter.
  *
  * ```cpp
  * // Binary-search sorted entries by tile ID with a probe whose mask is ignored.
@@ -332,7 +458,12 @@ struct KeyValue {
 template <typename K, typename V>
 struct KeyValueSort {
 	/**
-	 * Returns true if the left entry's key is smaller than the right entry's key.
+	 * Returns `true` if the left key is smaller than the right key.
+	 *
+	 * **Used for** merging registries sorted by tile ID.
+	 *
+	 * - `p_lhs` — Entry that supplies the left key.
+	 * - `p_rhs` — Entry that supplies the right key.
 	 *
 	 * ```cpp
 	 * // In a merge of two tile registries, select the next entry by ID alone.
@@ -345,7 +476,12 @@ struct KeyValueSort {
 };
 
 /**
- * Marks an entry as zero-constructible when both its key and value types are zero-constructible.
+ * Marks an entry zero-constructible if both member types are zero-constructible.
+ *
+ * **Used for** checking whether array storage can clear newly allocated entries.
+ *
+ * - `K` — Key type tested by the trait.
+ * - `V` — Value type tested by the trait.
  *
  * ```cpp
  * // Verify that array placement can clear newly allocated tile ID and mask slots to zero.

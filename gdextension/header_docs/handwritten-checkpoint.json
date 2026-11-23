@@ -344,5 +344,217 @@
       "Compared non-documentation bytes and retained examples to the pre-edit snapshot.",
       "Clang C++17 checked the normal include use in both Windows configurations."
     ]
+  },
+  "comment-length-limits": {
+    "api_version": "4.7.0-stable",
+    "rules_sha256": "0fd6b3e1331cba846a54abe1269d90d9c678951b87a27d6663d72bc619d6aa6f",
+    "source_revision": "507ed9d840c01a3c5b2a39af8bb4000bfac30bf5",
+    "configuration": "Godot 4.7.0-stable official; Windows x86_64, single precision, templated get_node",
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "clang_defines": [
+      [
+        "THREADS_ENABLED",
+        "DEBUG_ENABLED",
+        "DEV_ENABLED",
+        "HOT_RELOAD_ENABLED",
+        "TYPED_METHOD_BIND"
+      ],
+      [
+        "DISABLE_DEPRECATED",
+        "MATH_CHECKS"
+      ]
+    ],
+    "completed": false,
+    "verified_declarations": 80,
+    "edited_and_verified_declarations": 19,
+    "batch": "comment-length-limits/handwritten",
+    "headers_sha256": {
+      "include/godot_cpp/core/object_id.hpp": "a517dccfe19059a74780788036211c9b5c4b16060173ae809c47472596c2ec0c",
+      "include/godot_cpp/templates/span.hpp": "7441a826fce16a99579b24dbceeea1948abea112cadcaa0e4c64df4341d56d4c",
+      "include/godot_cpp/templates/spin_lock.hpp": "29fa2e1a5ed8df6e0cbd49e67503ee29e7717219c551f6f53a7aca8b6bb2efcc",
+      "include/godot_cpp/templates/vset.hpp": "8a5c1f1b29cd1f8c457c7a9c1bb0c1b34e5faa553447147b723e0291aa5fd41b",
+      "include/godot_cpp/variant/char_utils.hpp": "3049af540fae14242c260a5c4235dc15821b745010d641688f0fe7874783d96f"
+    },
+    "checks": [
+      "Matched previously reviewed declaration signatures and comment fingerprints before reusing semantic evidence.",
+      "Checked attached Markdown, parameter entries, Used for paragraphs and the 220/70-character limits for the registered scope.",
+      "Preserved C++ examples byte for byte.",
+      "Clang C++17 syntax in both listed configurations.",
+      "Compared the changed handwritten headers with the before-edit sources after stripping only documentation comments.",
+      "Checked the selected headers in the combined include translation unit and the retained Span examples."
+    ],
+    "pending": "The remaining application API and unreviewed headers have no current proof of complete declaration coverage. Previous batches outside this scope still need length revalidation where applicable."
+  },
+  "public-comment-length-review": {
+    "completed": false,
+    "api_version": "4.7.0-stable",
+    "configuration": "Godot 4.7.0-stable official, Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "c24b3903effe4cec928759542428b433ae4321f22d608ef6168b49887f4e836f",
+    "batch": "public-comment-length-review/handwritten",
+    "verified_public_declarations": 125,
+    "edited_and_verified_public_declarations": 14,
+    "previous_batch_public_declarations_reused": 72,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "headers_sha256": {
+      "include/godot_cpp/classes/editor_plugin_registration.hpp": "aeba3a8b67a0da6d82ddc2e89f3b7422b0876a31e5e5185f64166c75b969ca18",
+      "include/godot_cpp/core/object_id.hpp": "a517dccfe19059a74780788036211c9b5c4b16060173ae809c47472596c2ec0c",
+      "include/godot_cpp/core/print_string.hpp": "ee76c3485b814d8aabe71053700c290d33435e57374d9d2a30046ee824441512",
+      "include/godot_cpp/templates/safe_refcount.hpp": "8f750ac64fbf2cbfc47559c8439710cf2b3aa36a9ba909c40a42b4432eadad68",
+      "include/godot_cpp/templates/span.hpp": "7441a826fce16a99579b24dbceeea1948abea112cadcaa0e4c64df4341d56d4c",
+      "include/godot_cpp/templates/spin_lock.hpp": "29fa2e1a5ed8df6e0cbd49e67503ee29e7717219c551f6f53a7aca8b6bb2efcc",
+      "include/godot_cpp/templates/vset.hpp": "8a5c1f1b29cd1f8c457c7a9c1bb0c1b34e5faa553447147b723e0291aa5fd41b",
+      "include/godot_cpp/variant/char_utils.hpp": "3049af540fae14242c260a5c4235dc15821b745010d641688f0fe7874783d96f",
+      "include/godot_cpp/variant/typed_array.hpp": "6b8a66b4490ce7ef2b6b782cb4be2b004c30b34021730546511311cf06a82e1a"
+    },
+    "checks": [
+      "Matched existing declaration signatures, source and comment fingerprints where available.",
+      "Audited each public description, usage paragraph and parameter entry against the 220/70 limits.",
+      "Compared the C++ after removing only documentation blocks and preserved existing C++ examples.",
+      "C++17 Clang syntax passed in threaded debug/development and alternate MATH_CHECKS/DISABLE_DEPRECATED configurations.",
+      "Compared handwritten headers with their prior snapshots."
+    ],
+    "pending": "Review the remaining public declaration inventory against AGENTS.md. Skip private, protected and implementation-only declarations."
+  },
+  "pair-public": {
+    "api_version": "4.7.0-stable",
+    "rules_sha256": "c24b3903effe4cec928759542428b433ae4321f22d608ef6168b49887f4e836f",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "header_sha256": "6b18b2cf8027d11a971322a564b878709e0cf92e24bc0ed05f20545b55cba390",
+    "verified_public_declarations": 32,
+    "checks": [
+      "Matched every documented template, field, constructor, comparator, trait, and overload to its declaration.",
+      "Reviewed parameter roles, return values, and existing examples against pair.hpp and the relevant caller context.",
+      "Checked 220/70 limits and compared pre-edit C++ and examples byte for byte.",
+      "All 32 retained examples and the combined include unit passed Clang C++17 syntax in threaded debug/development and alternate configurations."
+    ]
+  },
+  "ref-public-cursor": {
+    "api_version": "4.7.0-stable official",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "header": "include/godot_cpp/classes/ref.hpp",
+    "header_sha256": "dc273f3fa6b4e0f46ba4d750a839c659e59ab3cf52c6caa15adc72fd21afe7a9",
+    "verified_public_declarations": 29,
+    "complete_header": true,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "source_paths": [
+      "https://github.com/godotengine/godot/blob/4.7-stable/core/object/ref_counted.cpp#L33-L117"
+    ],
+    "checks": [
+      "Matched each changed Markdown block to the public declaration and its parameter names.",
+      "Reviewed usage, results and 220/70 character limits with implementation-only declarations excluded.",
+      "Compared before and after C++ and retained examples byte for byte after removing documentation blocks.",
+      "C++17 Clang syntax in both the threaded debug/development/hot-reload and DISABLE_DEPRECATED/MATH_CHECKS configurations."
+    ]
+  },
+  "wrapped-public-cursor": {
+    "api_version": "4.7.0-stable official",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "header": "include/godot_cpp/classes/wrapped.hpp",
+    "header_sha256": "13a179acf856ce1e7002c4c63a9f405730dc852cd7f155d1d40530dc94f5873d",
+    "verified_public_declarations": 8,
+    "complete_header": true,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "source_paths": [
+      "include/godot_cpp/classes/wrapped.hpp",
+      "include/godot_cpp/core/class_db.hpp",
+      "binding_generator.py"
+    ],
+    "checks": [
+      "Matched each changed Markdown block to the public declaration and its parameter names.",
+      "Reviewed usage, results and 220/70 character limits with implementation-only declarations excluded.",
+      "Compared before and after C++ and retained examples byte for byte after removing documentation blocks.",
+      "C++17 Clang syntax in both the threaded debug/development/hot-reload and DISABLE_DEPRECATED/MATH_CHECKS configurations."
+    ]
+  },
+  "binder-public-cursor": {
+    "api_version": "4.7.0-stable official",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "header": "include/godot_cpp/core/binder_common.hpp",
+    "header_sha256": "23ffdb377752cb21a810a8998463cc0b20f163d2a1957aa638bb195a39cef991",
+    "verified_public_declarations": 2,
+    "complete_header": true,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "source_paths": [
+      "include/godot_cpp/core/binder_common.hpp",
+      "include/godot_cpp/core/type_info.hpp",
+      "include/godot_cpp/core/method_bind.hpp"
+    ],
+    "public_scope": "Enum and flag binding macros. The conversion, validation, and call helpers are binding implementation.",
+    "checks": [
+      "Matched each changed Markdown block to the public declaration and its parameter names.",
+      "Reviewed usage, results and 220/70 character limits with implementation-only declarations excluded.",
+      "Compared before and after C++ and retained examples byte for byte after removing documentation blocks.",
+      "C++17 Clang syntax in both the threaded debug/development/hot-reload and DISABLE_DEPRECATED/MATH_CHECKS configurations."
+    ]
+  },
+  "builtin-ptrcall-public-cursor": {
+    "api_version": "4.7.0-stable official",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "header": "include/godot_cpp/core/builtin_ptrcall.hpp",
+    "header_sha256": "a4a7d4881f2bd2d118eb29d1bc2693e324ca629d22db1f180fdd4b0904396b2a",
+    "verified_public_declarations": 0,
+    "complete_header": true,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "source_paths": [
+      "include/godot_cpp/core/builtin_ptrcall.hpp",
+      "include/godot_cpp/core/type_info.hpp",
+      "include/godot_cpp/core/method_bind.hpp"
+    ],
+    "public_scope": "All declarations in this header are in godot::internal.",
+    "checks": [
+      "Matched each changed Markdown block to the public declaration and its parameter names.",
+      "Reviewed usage, results and 220/70 character limits with implementation-only declarations excluded.",
+      "Compared before and after C++ and retained examples byte for byte after removing documentation blocks.",
+      "C++17 Clang syntax in both the threaded debug/development/hot-reload and DISABLE_DEPRECATED/MATH_CHECKS configurations."
+    ]
+  },
+  "class-db-public-cursor": {
+    "api_version": "4.7.0-stable official",
+    "configuration": "Windows x86_64, single precision, templated get_node",
+    "rules_sha256": "cf24feb19c71cb60fc2e504b0735ec5e6ac11f9de4c249dda160f49e0d5880ec",
+    "header": "include/godot_cpp/core/class_db.hpp",
+    "header_sha256": "9c18c54d39c48ccd12770be1d30fd5f7c6dcd33dc8f539373b8f52333b65b8c7",
+    "verified_public_declarations": 33,
+    "complete_header": true,
+    "api_inputs_sha256": {
+      "gdextension/extension_api-4-7.json": "53d37f85be32b6d10fb2266ca51f6ef0c3a55728acdb7c8301b1458a93c00943",
+      "gdextension/gdextension_interface.json": "7d8c0a039d9743eb8ebf88681ae0c641d8d3aa5ffca11081745a84da803e09a1"
+    },
+    "source_paths": [
+      "include/godot_cpp/core/class_db.hpp",
+      "include/godot_cpp/core/type_info.hpp",
+      "include/godot_cpp/core/method_bind.hpp",
+      "src/core/class_db.cpp",
+      "test/src/my_test.cpp"
+    ],
+    "public_scope": "Public extension-facing declarations and macros.",
+    "checks": [
+      "Matched each changed Markdown block to the public declaration and its parameter names.",
+      "Reviewed usage, results and 220/70 character limits with implementation-only declarations excluded.",
+      "Compared before and after C++ and retained examples byte for byte after removing documentation blocks.",
+      "C++17 Clang checked class_db.cpp and my_test.cpp in threaded debug/development/hot-reload mode with typed method binds, and class_db.cpp in alternate DISABLE_DEPRECATED/MATH_CHECKS mode. my_test.cpp also passed in alternate mode with typed method binds. The untyped MSVC-ABI test case has the same member-pointer diagnostic against the baseline."
+    ]
   }
 }

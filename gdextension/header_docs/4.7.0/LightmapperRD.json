@@ -7,7 +7,7 @@
   "declarations": {
     "class LightmapperRD : public Lightmapper {": {
       "xml": "brief_description",
-      "brief": "Godot's built-in GPU lightmapper. The engine creates it through the lightmapper factory when the rendering-device module provides the GPU backend.\n\n**Used for** baking lighting and lightmap textures for a scene through `godot::LightmapGI`.",
+      "brief": "GPU lightmapper created by the engine factory when the rendering-device backend is available.\n\n**Used for** baking lighting and lightmap textures for a scene through `godot::LightmapGI`.",
       "example": [
         "// Before showing GPU lightmapper diagnostics in an editor tool.",
         "bool has_gpu_lightmapper_class() {",
