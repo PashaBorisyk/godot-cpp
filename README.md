@@ -63,17 +63,17 @@ file, for example:
 ```ini
 [configuration]
 
-entry_symbol = "example_library_init"
+entry_symbol = "gdextension_cpp_library_init"
 compatibility_minimum = "4.1"
 
 [libraries]
 
-macos.debug = "res://bin/libgdexample.macos.debug.framework"
-macos.release = "res://bin/libgdexample.macos.release.framework"
-windows.debug.x86_64 = "res://bin/libgdexample.windows.debug.x86_64.dll"
-windows.release.x86_64 = "res://bin/libgdexample.windows.release.x86_64.dll"
-linux.debug.x86_64 = "res://bin/libgdexample.linux.debug.x86_64.so"
-linux.release.x86_64 = "res://bin/libgdexample.linux.release.x86_64.so"
+macos.debug = "res://bin/gdextension-cpp.macos.debug.framework"
+macos.release = "res://bin/gdextension-cpp.macos.release.framework"
+windows.debug.x86_64 = "res://bin/gdextension-cpp.windows.debug.x86_64.dll"
+windows.release.x86_64 = "res://bin/gdextension-cpp.windows.release.x86_64.dll"
+linux.debug.x86_64 = "res://bin/gdextension-cpp.linux.debug.x86_64.so"
+linux.release.x86_64 = "res://bin/gdextension-cpp.linux.release.x86_64.so"
 # Repeat for other architectures to support arm64, rv64, etc.
 ```
 
